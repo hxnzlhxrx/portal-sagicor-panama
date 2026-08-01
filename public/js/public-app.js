@@ -1016,7 +1016,7 @@ console.log($("ticket-reclamo"));
 
 }
 
-function pasoWizard(dir){
+async function pasoWizard(dir){
 
     const p = wizard.paso;
 
@@ -1059,6 +1059,12 @@ function refrescarWizard(){
 //                <<--- </gishikoDev_> --->>
 async function enviarReclamo(){
 
+    console.clear();
+
+    console.log("====================================");
+    console.log("INICIANDO ENVÍO DEL RECLAMO");
+    console.log("====================================");
+
     const codigo = obtenerCodigoReclamo();
 
     const reclamo = {
@@ -1069,48 +1075,46 @@ async function enviarReclamo(){
 
         servicio: wizard.servicio,
 
-        producto: $('f-producto').value,
+        producto: $("f-producto").value,
 
-        nombre: $('f-nombre').value.trim(),
+        nombre: $("f-nombre").value.trim(),
 
-        cedula: $('f-cedula').value.trim(),
+        cedula: $("f-cedula").value.trim(),
 
-        email: $('f-email').value.trim(),
+        email: $("f-email").value.trim(),
 
-        tel: $('f-tel').value.trim(),
+        tel: $("f-tel").value.trim(),
 
-        poliza: $('f-poliza')?.value.trim() || "",
+        poliza: $("f-poliza")?.value.trim() || "",
 
         perfil_presenta: wizard.perfil,
 
         hospital:
             wizard.perfil === "hospital"
-                ? $('f-hospital').value.trim()
+                ? $("f-hospital").value.trim()
                 : null,
 
         corredora:
             wizard.perfil === "corredor"
-                ? $('f-corredora')?.value.trim() || null
+                ? $("f-corredora")?.value.trim() || null
                 : null,
 
         origen: "Portal Web",
 
-        fecha_evento: $('f-fecha').value,
+        fecha_evento: $("f-fecha").value,
 
         monto:
-            $('f-sinmonto')?.checked
+            $("f-sinmonto")?.checked
                 ? null
                 : (
-                    $('f-monto').value
-                        ? Number($('f-monto').value)
+                    $("f-monto").value
+                        ? Number($("f-monto").value)
                         : null
                 ),
 
-        proveedor:
-            $('f-proveedor').value.trim(),
+        proveedor: $("f-proveedor").value.trim(),
 
-        descripcion:
-            $('f-desc').value.trim(),
+        descripcion: $("f-desc").value.trim(),
 
         estado: "Recibido",
 
@@ -1120,86 +1124,85 @@ async function enviarReclamo(){
 
     };
 
+    console.log("RECLAMO A INSERTAR");
+    console.log(reclamo);
+
     try{
 
+        console.log("1. Creando reclamo...");
+
         const nuevoReclamo =
-            await ReclamosRepository.crear(
-                reclamo
-            );
+            await ReclamosRepository.crear(reclamo);
+
+        console.log("RECLAMO CREADO");
+        console.log(nuevoReclamo);
+
+        console.log("2. Subiendo documentos...");
 
         const cantidadDocumentos =
             await subirDocumentosReclamo(
                 nuevoReclamo.id
             );
 
-        console.log(
+        console.log("DOCUMENTOS SUBIDOS:", cantidadDocumentos);
 
-            "Documentos cargados:",
-
-            cantidadDocumentos
-
-        );
+        console.log("3. Verificando reclamo...");
 
         const verificacion =
-            await ReclamosRepository.buscar(
-                codigo
-            );
+            await ReclamosRepository.buscar(codigo);
+
+        console.log(verificacion);
 
         if(!verificacion){
 
-            toast(
-                "No fue posible verificar el reclamo."
-            );
+            toast("No fue posible verificar el reclamo.");
 
             return;
 
         }
 
-        if(verificacion.num !== codigo){
-
-            toast(
-                "La verificación del reclamo falló."
-            );
-
-            return;
-
-        }
-
-        $('radicado-num').textContent =
-            codigo;
-
-        await descargarTicketPDF();
+        $("radicado-num").textContent = codigo;
 
         document
-            .querySelectorAll('.wstep')
+            .querySelectorAll(".wstep")
             .forEach(w=>
+
                 w.classList.toggle(
-                    'hidden',
-                    w.dataset.paso !== '6'
+
+                    "hidden",
+
+                    w.dataset.paso !== "6"
+
                 )
+
             );
 
         document
-            .querySelectorAll('#stepper .st')
+            .querySelectorAll("#stepper .st")
             .forEach(s=>{
 
-                s.classList.add('hecho');
+                s.classList.add("hecho");
 
-                s.classList.remove('actual');
+                s.classList.remove("actual");
 
             });
 
-        $('nav-wizard')
-            .classList.add('hidden');
+        $("nav-wizard")
+            .classList.add("hidden");
+
+        console.log("RECLAMO FINALIZADO");
 
         toast(
             "Reclamo " +
             codigo +
-            " enviado con éxito"
+            " enviado correctamente."
         );
 
     }
+
     catch(error){
+
+        console.error("ERROR GENERAL");
 
         console.error(error);
 
@@ -1215,9 +1218,15 @@ async function enviarReclamo(){
 //                <<--- </gishikoDev_> --->>
 async function subirDocumentosReclamo(reclamoId){
 
+    console.log("==============================");
+    console.log("SUBIENDO DOCUMENTOS");
+    console.log("==============================");
+
     let total = 0;
 
     if(!wizard.archivos){
+
+        console.log("No existen documentos.");
 
         return 0;
 
@@ -1242,15 +1251,28 @@ async function subirDocumentosReclamo(reclamoId){
             documentosActivos[indice]?.[0] ??
             "Documento";
 
+        console.log("Tipo:", nombreDocumento);
+
         for(const archivo of archivos){
+
+            console.log("--------------------------");
+
+            console.log("Archivo:", archivo.name);
 
             try{
 
                 const subida =
                     await StorageRepository.subirArchivo(
+
                         archivo,
+
                         reclamoId
+
                     );
+
+                console.log("Archivo subido");
+
+                console.log(subida);
 
                 await StorageRepository.guardarDocumento({
 
@@ -1272,20 +1294,17 @@ async function subirDocumentosReclamo(reclamoId){
 
                 });
 
+                console.log("Documento registrado en BD");
+
                 total++;
 
             }
+
             catch(error){
 
-                console.error(
+                console.error("ERROR SUBIENDO");
 
-                    "Error subiendo documento:",
-
-                    archivo.name,
-
-                    error
-
-                );
+                console.error(error);
 
                 throw error;
 
@@ -1295,19 +1314,9 @@ async function subirDocumentosReclamo(reclamoId){
 
     }
 
-    await ReclamosRepository.actualizarCantidadDocumentos(
+    console.log("TOTAL DOCUMENTOS:", total);
 
-        reclamoId,
-
-        total
-
-    );
-
-    console.log(
-
-        `${total} documento(s) almacenado(s).`
-
-    );
+    console.log("==============================");
 
     return total;
 
