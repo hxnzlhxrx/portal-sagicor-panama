@@ -15,10 +15,17 @@ const StorageRepository = {
         console.log("Tamaño:", file.size);
         console.log("Tipo:", file.type);
 
-        const nombreStorage =
-            crypto.randomUUID() +
-            "_" +
-            file.name.replace(/\s+/g, "_");
+                        const nombreLimpio =
+                    file.name
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^\w.-]/g, "_")
+                        .replace(/_+/g, "_");
+
+                const nombreStorage =
+                    crypto.randomUUID() +
+                    "_" +
+                    nombreLimpio;
 
         const ruta =
             carpeta
