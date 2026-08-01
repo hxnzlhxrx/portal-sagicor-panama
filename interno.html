@@ -1,0 +1,684 @@
+<!-- --- </gishikoDev_> 2026 - Hansel Hernandez --- -->
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sagicor Panamá · Gestión de Reclamos (Interno)</title>
+  <link rel="icon" href="/interno/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <link rel="stylesheet" href="./interno/css/interno-styles.css" />
+</head>
+
+<body>
+
+  <div class="toast" id="toast"></div>
+
+
+
+
+  <!-- ============ LOGIN ============ -->
+  <div class="login-fondo" id="pantalla-login">
+
+    <svg class="onda" viewBox="0 0 200 200">
+      <path
+        d="M20 140 C 60 60, 140 40, 185 25 C 150 70, 120 90, 95 100 C 130 105, 160 95, 185 80 C 160 130, 110 160, 60 155 Z"
+        fill="#fff" />
+    </svg>
+    <div class="login-panel">
+
+      <img id="logo-login" alt="Sagicor Compañía de Seguros">
+      <div class="sub-marca">Gestión de Reclamos · Uso interno</div>
+      <h2>Acceso equipo Sagicor</h2>
+      <p>Operaciones · Reclamos · Red Médica · TI</p>
+      <form onsubmit="loginEquipo(event)">
+        <div class="campo"><label>Correo corporativo</label><select id="l-email"></select></div>
+        <div class="campo"><label>Contraseña</label><input id="l-pass" type="password"
+            placeholder="Ingresar Contraseña"></div>
+        <button class="btn btn-azul" style="width:100%;justify-content:center" type="submit">Ingresar</button>
+        <!-- <p class="ayuda" style="text-align:center;margin-top:12px">Ambiente de demostración · en producción se integra con Microsoft Entra ID (SSO) y control de accesos.</p> -->
+      </form>
+      <br><br>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center"
+        onclick="window.location.href='/index.html'">Volver al Inicio</button>
+      <div
+        style="margin-top:22px;padding-top:14px;border-top:1px solid var(--niebla);display:flex;align-items:center;gap:10px;justify-content:center">
+        <img
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAAACAvzbMAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nO3df5gkVX3v8Xf1LOu6rMuKBBDJ7ILO0CJRHjGkIVyCxEvEEKPRJbk3icQk/orJ7cd4vcYYw0OUGEMS7cSYGI14EzVkxggKQYI/LqJiuyJRRGxnEXeGdQPrAsu6LMvsdJ37x6nq+tHVMz093X26qj+v5xl6pqe7+ks/O/Xt7znnewpEREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREZOR4rgMQGQdTM/MAxwPbgEngROAE4FhgE7ARWBc83AcWgUPAfuBhYC+wB9gNLOy8dOtDw4teJJsSiEifTc3MbwbODL6eA5wBlIHNfXyZ/cAc0AC+DdwZfO3ZeenWPr6MSGdKICJrMDUzX8Imh3OBc4BK8HPJUUh7gDuArwB1YMfOS7cedBSLFJwSiMgqTc3MHwu8CPh54ELs0NSoWgK+4d3xvXrplm89AOzDDofdDywA9zfq1SWXAUp+KYGIdGFqZn498GLgMuAiYL3biLrkG7zbvkPpazvBmKxHHAZ2YYfD7gK+ia1g7m3Uq/7Q4pRcUgIRWcbUzPyJwOuBVzPalUa7Rw9TuuFreD94sJdnP4QdAvsicAtwuyoVSVMCEckQJI63YBPHBsfhrN7eR5j4ZB1+9Fi/jrgf+CxwPXBDo17VKjBRAhGYnl2Yxk789sYYvGYTjjQxS03M0hKlJR+WligtNfGCr6Uln2ZzCX/Jp7nUhKUmpabPRLNJacmn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ntupAslqBixht6XPqnwOAmdldaGvsQK5BXhjunISGTRNostICeY2vgR8qVypvQOYxs57vCTj4S/DbvXezXF9bFPf3cDflyu1LcAbgD+k/e/gJcCbWd4i8MysFWLB6qgXA1eTXMa7CTu0dlk3MWNXU2Wt2Aq3c/8uNnnMaTt3cUEJRIamXKldQHsD4F2NevU1WY8PTopz5UrtZdhVWJekHvKM4LgbyK4Qfq7Tqq1g/uTycqX2AHa1VNyp5UptXaNeXVrmf6ej4HmfCJJUehL8Jas49l2NevWVvcQgMgyaA5FhOzf1dckKXehh9fBvGb8Kn7eIXTabPnY3W5J8vLuwe3INdmI7bjO2qhLJPSUQGaY7ae+SPon2yiLLZMZ9u6GVYLImjzMrm5RtGffd32v1EdeoVw9hl+6maasRKQQlEBmaYEuSWzJ+dXW5Unth1qqqcqVGuVI7DztfkRYftprN+P1ry5XaHwVzElnHPpH24SuwHfD9ktWguJqlxSIjS3MgMmyXY1dYxT+8HAt8GthRrtRuAuaxlcok9toW59P+YWcXcF3s5w9iO9HTn+7fDryqXKldB3wbO6R0HPCT2Inu9EosH7v1Sb9k7QZ8XB+PL+KMEogMVaNe/VK5Uvsz7OqntLPJ3tspbRF4ZXwvq0a9eqBcqf0q8B+0b2UyCfyvLkP80z4vh83a2VdDWFIIGsISF96KvRpgL/MMB4CXNerVW9K/CO77BXrbjt0H/gxbIfXTfRn3ndbn1xBxQglEhq5Rr9KoV98B/BRwA91tP34YewGon2jUqzcsc+ybgWdht3/P3DYkw63A8xv16lu62fl3lbKu1/GCDtd0F8kVDWGJM8FQ0S8Ek9kXAmdhh5s2ETXL7QK+Dny+095XGcfdC1SDy76eD5yDvY76sdgPTQeBPcA3g+PuWuGQdWxSivPpLvHtAJ5J+4e19M/vor1npJttXURERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERCL/H4T6rwLEageyAAAAAElFTkSuQmCC"
+          alt="SSRP" style="height:34px">
+        <span style="font-size:10.5px;line-height:1.35;color:var(--pizarra);text-align:left">Regulada y supervisada por
+          la<br><b style="color:var(--profundo)">Superintendencia de Seguros y Reaseguros de Panamá</b></span>
+
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- ============ APP ============ -->
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <div class="marca-side">
+        <img id="logo-side" alt="Sagicor Compañía de Seguros">
+        <div class="sub" id="titulo-portal">Gestión de Reclamos</div>
+      </div>
+      <div class="menu">
+        <button class="item" data-tab="bandeja" onclick="tab('bandeja')">📥 Bandeja de reclamos</button>
+        <button class="item on" data-tab="dash" onclick="tab('dash')">📊 Tablero</button>
+        <!-- <button class="item" data-tab="preauth" id="item-preauth" onclick="tab('preauth')">📋 Pre-autorizaciones</button>
+      <button class="item" data-tab="provs" id="item-provs" onclick="tab('provs')">🏥 Proveedores</button> -->
+        <button class="item" data-tab="red" onclick="tab('red')">🗺️ Red Médica</button>
+        <button class="item" data-tab="admin" id="item-admin" onclick="tab('admin')">⚙️ Administración</button>
+      </div>
+      <div class="usuario">
+        <b id="u-nombre"></b><span id="u-rol"></span><br>
+        <button class="btn-link" style="padding:6px 0" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <!-- BANDEJA -->
+      <section class="tabpane" id="tab-bandeja">
+        <h2>Bandeja de reclamos</h2>
+        <p class="sub">Todos los reclamos del portal y los importados. Haga clic en una fila para gestionar.</p>
+        <div class="tarjeta">
+          <div class="filtros">
+            <input id="fil-busca" placeholder="Buscar radicado, nombre o cédula…" oninput="pintarBandeja()">
+            <select id="fil-estado" onchange="pintarBandeja()"></select>
+            <select id="fil-linea" onchange="pintarBandeja()"></select>
+            <select id="fil-producto" onchange="pintarBandeja()"></select>
+            <select id="fil-asig" onchange="pintarBandeja()"></select>
+            <select id="fil-rango" onchange="SC.aplicarRango(this.value)">
+              <option value="">Todo el período</option>
+              <option value="mensual">Este mes</option>
+              <option value="trimestral">Últimos 3 meses</option>
+              <option value="semestral">Últimos 6 meses</option>
+              <option value="anual">Últimos 12 meses</option>
+              <option value="personalizado">Personalizado…</option>
+            </select>
+            <input type="date" id="fil-desde" class="hidden" onchange="pintarBandeja()">
+            <input type="date" id="fil-hasta" class="hidden" onchange="pintarBandeja()">
+            <button class="btn btn-ghost btn-sm" onclick="SC.descargarReporte()">📥 Descargar reporte</button>
+            <button class="btn btn-ghost btn-sm" onclick="SC.abrirPagosMasivos()">💳 Pagos masivos</button>
+            <span style="flex:1"></span>
+            <!-- <button class="btn btn-ghost btn-sm" onclick="descargarPlantilla()">📄 Plantilla</button>
+          <label class="btn btn-verde btn-sm" style="margin:0">⬆ Importar CSV/XLSX
+            <input type="file" class="oculto" accept=".csv,.xlsx,.xls" onchange="importarArchivo(this)"></label>
+          <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button> -->
+            <button class="btn btn-ghost" onclick="cargarBandeja()">
+
+              📂 Bandeja
+
+            </button>
+            <button class="btn btn-ghost" onclick="verArchivados()">
+
+              🗄 Archivados
+
+            </button>
+
+          </div>
+          <div class="tabla-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Radicado</th>
+                  <th>Asegurado</th>
+                  <th>Línea</th>
+                  <th>Producto</th>
+                  <th>Monto</th>
+                  <th>Recibido</th>
+                  <th>Estado</th>
+                  <th>Genelco</th>
+                  <th>Asignado a</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-bandeja"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- DETALLE RECLAMO -->
+      <section class="tabpane hidden" id="tab-detalle">
+        <button class="btn-link" onclick="tab('bandeja')">← Volver a la bandeja</button>
+        <div id="detalle-body"></div>
+      </section>
+
+      <!-- TABLERO -->
+      <section class="tabpane" id="tab-dash">
+        <h2>Tablero de reclamos</h2>
+        <p class="sub">Vista consolidada de la operación · indicadores en línea del portal.</p>
+        <div class="kpis" id="kpis"></div>
+        <div class="dash-grid">
+          <div class="tarjeta">
+            <h3>Reclamos por estado</h3>
+            <div class="barras" id="chart-estados"></div>
+          </div>
+          <div class="tarjeta">
+            <h3>Por línea de negocio</h3>
+            <div class="barras" id="chart-lineas"></div>
+          </div>
+        </div>
+        <div class="dash-grid">
+          <div class="tarjeta">
+            <h3>Por producto (póliza)</h3>
+            <div class="barras" id="chart-productos"></div>
+          </div>
+          <div class="tarjeta">
+            <h3>Monto reclamado vs pagado</h3>
+            <div class="barras" id="chart-montos"></div>
+          </div>
+        </div>
+        <div class="tarjeta">
+          <h3>Alertas de gestión (SLA <span id="sla-label"></span> días)</h3>
+          <div id="alertas"></div>
+        </div>
+      </section>
+
+      <!-- PRE-AUTORIZACIONES -->
+      <section class="tabpane hidden" id="tab-preauth">
+        <h2>Pre-autorizaciones médicas</h2>
+        <p class="sub">Solicitudes de hospitalización, cirugías y estudios · evaluación de médicos asesores.</p>
+        <div class="tarjeta">
+          <div class="filtros">
+            <input id="pa-busca" placeholder="Buscar N°, asegurado o paciente…" oninput="pintarPA()">
+            <select id="pa-fil-estado" onchange="pintarPA()"></select>
+            <select id="pa-fil-tipo" onchange="pintarPA()"></select>
+            <select id="pa-fil-asig" onchange="pintarPA()"></select>
+            <span style="flex:1"></span>
+            <button class="btn btn-ghost btn-sm" onclick="descargarPlantillaPA()">📄 Plantilla</button>
+            <label class="btn btn-verde btn-sm" style="margin:0">⬆ Importar CSV/XLSX
+              <input type="file" class="oculto" accept=".csv,.xlsx,.xls" onchange="importarArchivoPA(this)"></label>
+            <button class="btn btn-ghost btn-sm" onclick="exportarCSV_PA()">⬇ Exportar CSV</button>
+          </div>
+          <div class="tabla-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Asegurado / paciente</th>
+                  <th>Tipo</th>
+                  <th>Recibida</th>
+                  <th>Estado</th>
+                  <th>Autorización</th>
+                  <th>Asignado a</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-pa"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- DETALLE PA -->
+      <section class="tabpane hidden" id="tab-detalle-pa">
+        <button class="btn-link" onclick="tab('preauth')">← Volver a pre-autorizaciones</button>
+        <div id="detalle-pa-body"></div>
+      </section>
+
+      <!-- PROVEEDORES -->
+      <section class="tabpane hidden" id="tab-provs">
+        <h2>Solicitudes de proveedores</h2>
+        <p class="sub">Expedientes de afiliación · gestión de Red Médica. Haga clic en una fila para gestionar.</p>
+        <div class="tarjeta">
+          <div class="tabla-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>N° solicitud</th>
+                  <th>Proveedor</th>
+                  <th>Tipo</th>
+                  <th>Especialidad</th>
+                  <th>Contacto</th>
+                  <th>Teléfono</th>
+                  <th>Recibido</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-provs"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- DETALLE PROVEEDOR -->
+      <section class="tabpane hidden" id="tab-detalle-prov">
+        <button class="btn-link" onclick="tab('provs')">← Volver a proveedores</button>
+        <div id="detalle-prov-body"></div>
+      </section>
+
+
+      <!-- RED MÉDICA -->
+      <section class="tabpane hidden" id="tab-red">
+        <h2>Red Médica Sagicor</h2>
+        <p class="sub">Directorio oficial · <b id="red-total"></b> prestadores contratados · corte 05 jul 2026.</p>
+        <div class="tarjeta">
+          <div class="filtros">
+            <input id="ir-q" placeholder="Buscar nombre, hospital, ciudad…" oninput="pintarRed()"
+              style="min-width:220px">
+            <select id="ir-esp" onchange="pintarRed()">
+              <option value="">Todas las especialidades</option>
+            </select>
+            <select id="ir-prov" onchange="pintarRed()">
+              <option value="">Todas las provincias</option>
+            </select>
+            <span style="flex:1"></span>
+            <button class="btn btn-ghost btn-sm" onclick="exportarRedCSV()">⬇ Exportar CSV</button>
+          </div>
+          <p class="ayuda" id="ir-count" style="margin:0 0 10px"></p>
+          <div class="tabla-scroll" style="max-height:560px;overflow-y:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Especialidad</th>
+                  <th>Nombre / Proveedor</th>
+                  <th>Dirección</th>
+                  <th>Provincia</th>
+                  <th>Ciudad</th>
+                  <th>Teléfono</th>
+                </tr>
+              </thead>
+              <tbody id="ir-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADMINISTRACIÓN (Configuración del Portal) -->
+      <section class="tabpane" id="tab-admin">
+        <h2>Configuración del Portal</h2>
+        <p class="sub">Módulo avanzado exclusivo para TI. Personalice el portal, catálogos, SLAs y auditoría sin tocar
+          código.</p>
+        <div class="subtabs" id="admin-subtabs">
+          <button class="subtab on" data-sub="usuarios" onclick="subtab('usuarios')">👥 Usuarios y Roles</button>
+          <button class="subtab" data-sub="cms" onclick="subtab('cms')">🖼️ Portal Público (CMS)</button>
+          <button class="subtab" data-sub="sla" onclick="subtab('sla')">⏱️ SLAs por proceso</button>
+          <button class="subtab" data-sub="cats" onclick="subtab('cats')">📚 Catálogos</button>
+          <button class="subtab" data-sub="red" onclick="subtab('red')">🗺️ Red Médica</button>
+          <button class="subtab" data-sub="plant" onclick="subtab('plant')">📄 Plantillas</button>
+          <button class="subtab" data-sub="mail" onclick="subtab('mail')">✉️ Correos</button>
+          <button class="subtab" data-sub="param" onclick="subtab('param')">⚙️ Parámetros</button>
+          <button class="subtab" data-sub="audit" onclick="subtab('audit')">🔍 Auditoría</button>
+          <button class="subtab" onclick="subtab('firmas')" data-sub="firmas">✍️ Firmas digitales</button>
+          <button class="subtab" onclick="subtab('forms')" data-sub="forms">📄 Formularios dinámicos</button>
+        </div>
+
+        <!-- Usuarios -->
+        <div class="sublit" id="sub-usuarios">
+          <div class="tarjeta">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+              <h3 style="margin:0">Usuarios del equipo</h3>
+              <button class="btn btn-azul btn-sm" onclick="abrirModalUsuario(-1)">＋ Crear usuario</button>
+            </div>
+            <div class="tabla-scroll" style="margin-top:14px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol funcional</th>
+                    <th>Perfil</th>
+                    <th>Estado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-users"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tarjeta">
+            <h3>Roles y permisos</h3>
+            <p class="ayuda">Cree perfiles adicionales sin programación. Los cambios aplican al próximo inicio de
+              sesión.</p>
+            <div class="tabla-scroll" style="margin-top:10px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rol</th>
+                    <th>Acceso</th>
+                    <th>Editar reclamos</th>
+                    <th>Ver admin</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-roles"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- CMS -->
+        <div class="sublit hidden" id="sub-cms">
+          <div class="tarjeta">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+              <h3 style="margin:0">Banner dinámico del Portal Público</h3>
+              <button class="btn btn-azul btn-sm" onclick="agregarBanner()">＋ Nuevo banner</button>
+            </div>
+            <p class="ayuda">Cargue, reordene, active/desactive y programe campañas. Vista previa incluida.</p>
+            <div class="tabla-scroll" style="margin-top:12px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Orden</th>
+                    <th>Nombre</th>
+                    <th>Vigencia</th>
+                    <th>URL destino</th>
+                    <th>Estado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-banners"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tarjeta">
+            <h3>Identidad del portal</h3>
+            <div class="grid2">
+              <div class="campo">
+                <label>Logo del portal</label>
+                <label class="btn btn-ghost btn-sm" style="margin:0">🖼️ Cargar nueva imagen
+                  <input type="file" class="oculto" accept="image/*" onchange="cambiarLogo(this)"></label>
+                <p class="ayuda">PNG con fondo transparente recomendado.</p>
+              </div>
+              <div class="campo"><label>Nombre del módulo</label><input id="cfg-titulo" onchange="aplicarConfig()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLAs -->
+        <div class="sublit hidden" id="sub-sla">
+          <div class="tarjeta">
+            <h3>SLA por proceso</h3>
+            <p class="ayuda">Configurable por tipo, producto y canal. Aplica a semáforos, alertas y reportes.</p>
+            <div class="tabla-scroll" style="margin-top:12px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Proceso</th>
+                    <th>Tipo / segmento</th>
+                    <th>SLA</th>
+                    <th>Unidad</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-sla"></tbody>
+              </table>
+            </div>
+            <button class="btn btn-azul btn-sm" style="margin-top:12px" onclick="agregarSLA()">＋ Nuevo SLA</button>
+          </div>
+        </div>
+
+        <!-- Catálogos -->
+        <div class="sublit hidden" id="sub-cats">
+          <div class="tarjeta">
+            <h3>Catálogos del sistema</h3>
+            <p class="ayuda">Alta, baja y modificación de valores sin cambios en BD.</p>
+            <div class="filtros"><select id="cat-sel" onchange="pintarCat()"></select>
+              <input id="cat-nuevo" placeholder="Nuevo valor…">
+              <button class="btn btn-azul btn-sm" onclick="agregarCat()">＋ Agregar</button>
+            </div>
+            <div class="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Valor</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-cat"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Red médica admin -->
+        <div class="sublit hidden" id="sub-red">
+          <div class="tarjeta">
+            <h3>Gestión de Red Médica</h3>
+            <p class="ayuda">Importe Excel, altas individuales, bajas lógicas, versionamiento e historial.</p>
+            <div class="filtros">
+              <label class="btn btn-verde btn-sm" style="margin:0">⬆ Importar Excel
+                <input type="file" class="oculto" accept=".xlsx,.xls,.csv" onchange="importarRed(this)"></label>
+              <button class="btn btn-ghost btn-sm" onclick="exportarRedCSV()">⬇ Exportar CSV</button>
+              <button class="btn btn-azul btn-sm" onclick="altaMedico()">＋ Alta individual</button>
+              <span style="flex:1"></span>
+              <span class="ayuda"><b id="red-count-admin">0</b> prestadores · v<b id="red-version">1</b></span>
+            </div>
+            <div class="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Historial</th>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-red-hist"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plantillas -->
+        <div class="sublit hidden" id="sub-plant">
+          <div class="tarjeta">
+            <h3>Plantillas de documentos</h3>
+            <p class="ayuda">Editor de plantillas con variables dinámicas y bloques de firma. Sin desarrollo.</p>
+            <div class="filtros"><select id="plant-sel" onchange="pintarPlantilla()"></select>
+              <button class="btn btn-ghost btn-sm" onclick="previsualizarPlantilla()">👁 Previsualizar</button>
+              <button class="btn btn-azul btn-sm" onclick="guardarPlantilla()">💾 Guardar</button>
+            </div>
+            <div class="grid2">
+              <div class="campo"><label>Asunto / título</label><input id="plant-titulo"></div>
+              <div class="campo"><label>Variables disponibles</label><input
+                  value="{nombre} {numero} {fecha} {estado} {monto} {motivo}" disabled></div>
+            </div>
+            <div class="campo"><label>Cuerpo</label><textarea id="plant-body" rows="10"
+                style="font-family:var(--mono);font-size:12.5px"></textarea></div>
+          </div>
+        </div>
+
+        <!-- Correos -->
+        <div class="sublit hidden" id="sub-mail">
+          <div class="tarjeta">
+            <h3>Correos automáticos</h3>
+            <p class="ayuda">Configure las notificaciones que dispara el sistema en cada evento.</p>
+            <div class="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Evento</th>
+                    <th>Destinatarios</th>
+                    <th>Plantilla</th>
+                    <th>Activo</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-mail"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parámetros -->
+        <div class="sublit hidden" id="sub-param">
+          <div class="tarjeta">
+            <h3>Parámetros operativos</h3>
+            <div class="grid2">
+              <div class="campo"><label>SLA global de resolución (días)</label><input id="cfg-sla" type="number" min="1"
+                  onchange="aplicarConfig()"></div>
+              <div class="campo"><label>Horario laboral</label><input id="cfg-horario" value="Lun–Vie 08:00–17:00"
+                  onchange="guardarParam()"></div>
+              <div class="campo"><label>Feriados nacionales (separados por coma)</label><input id="cfg-feriados"
+                  placeholder="01-ene, 03-nov, 25-dic" onchange="guardarParam()"></div>
+              <div class="campo"><label>Escalamiento tras (días)</label><input id="cfg-escal" type="number" value="3"
+                  onchange="guardarParam()"></div>
+            </div>
+            <div class="campo"><label>Módulos visibles</label>
+              <label
+                style="display:flex;gap:8px;align-items:center;font-weight:500;font-size:13.5px;margin-top:6px"><input
+                  type="checkbox" id="cfg-mod-pa" style="width:auto" onchange="aplicarConfig()">
+                Pre-autorizaciones</label>
+              <label
+                style="display:flex;gap:8px;align-items:center;font-weight:500;font-size:13.5px;margin-top:6px"><input
+                  type="checkbox" id="cfg-mod-prov" style="width:auto" onchange="aplicarConfig()"> Proveedores</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auditoría -->
+        <div class="sublit hidden" id="sub-audit">
+          <div class="tarjeta">
+            <h3>Auditoría de configuración</h3>
+            <p class="ayuda">Toda modificación registra usuario, fecha/hora, valor anterior y nuevo.</p>
+            <div class="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha/Hora</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Anterior</th>
+                    <th>Nuevo</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-audit"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="sublit hidden" id="sub-firmas">
+          <div class="tarjeta">
+            <h3>Firmas digitales por usuario</h3>
+            <p class="ayuda">La firma se aplica automáticamente en las cartas de pre-autorización según el usuario
+              aprobador. Solo IT / Administrador puede cargar o modificar.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Firma cargada</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-firmas"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sublit hidden" id="sub-forms">
+          <div class="tarjeta">
+            <h3>Formularios dinámicos (PDF u otros)</h3>
+            <p class="ayuda">Cargue el formulario vigente por tipo de reclamo/gestión. El portal público consumirá
+              siempre la última versión activa.</p>
+            <div class="filtros">
+              <select id="forms-tipo">
+                <option value="SI">Salud Individual</option>
+                <option value="SC">Salud Colectivo</option>
+                <option value="AP">Accidentes Personales</option>
+                <option value="VD">Vida</option>
+                <option value="PA">Pre-autorización</option>
+                <option value="PROV">Registro de proveedores</option>
+              </select>
+              <input type="file" id="forms-file" accept=".pdf,.doc,.docx">
+              <button class="btn btn-azul btn-sm" onclick="SC.subirFormulario()">Publicar nueva versión</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Formulario</th>
+                  <th>Versión</th>
+                  <th>Publicado</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-forms"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL USUARIO -->
+  <div class="modal-fondo" id="modal-usuario">
+    <div class="modal">
+      <h3 id="mu-titulo">Crear usuario</h3>
+      <div class="grid2">
+        <div class="campo"><label>Nombre completo</label><input id="mu-nombre"></div>
+        <div class="campo"><label>Correo corporativo</label><input id="mu-email" placeholder="usuario@sagicor.com">
+        </div>
+        <div class="campo"><label>Rol funcional</label><input id="mu-rol"
+            placeholder="Ej. Especialista de Indemnizaciones"></div>
+        <div class="campo"><label>Perfil de acceso</label>
+          <select id="mu-perfil">
+            <option value="admin">Administrador IT</option>
+            <option value="gerencia">Gerencia</option>
+            <option value="lider">Líder (supervisión)</option>
+            <option value="coordinador">Coordinación</option>
+            <option value="reclamos">Reclamos</option>
+            <option value="contabilidad">Contabilidad</option>
+            <option value="atencion">Atención al Cliente</option>
+            <option value="ventas">Ventas</option>
+            <option value="operaciones">Operaciones</option>
+            <option value="suscripcion">Suscripción</option>
+            <option value="auditoria">Auditoría</option>
+            <option value="especialista">Gestión de reclamos</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" onclick="cerrarModalUsuario()">Cancelar</button>
+        <button class="btn btn-azul btn-sm" onclick="guardarUsuario()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL PAGOS MASIVOS ============ -->
+  <div class="modal-fondo hidden" id="modal-pagos">
+    <div class="modal" style="max-width:820px">
+      <h3>💳 Carga masiva de pagos</h3>
+      <p class="ayuda">Cargue un archivo <b>CSV</b> o <b>TXT</b> con las columnas:
+        <code>radicado, monto_pagado, genelco, estado</code>. Aceptamos archivos de CheckPlus o pagos bancarios (Global
+        Bank / St. George).</p>
+      <div class="grid">
+        <div class="campo"><label>Archivo</label><input type="file" id="pm-file" accept=".csv,.txt"
+            onchange="SC.previewPagos()"></div>
+        <div class="campo"><label>Origen del archivo</label><select id="pm-origen">
+            <option>CheckPlus</option>
+            <option>Global Bank</option>
+            <option>Banco St. George</option>
+            <option>Otro</option>
+          </select></div>
+      </div>
+      <div id="pm-preview" style="margin-top:16px"></div>
+      <div class="modal-acciones">
+        <button class="btn btn-ghost" onclick="SC.cerrarPagosMasivos()">Cancelar</button>
+        <button class="btn btn-azul" onclick="SC.procesarPagos()">Procesar lote</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="interno/js/interno-supabase.js"></script>
+
+  <script src="interno/js/interno-repository.js"></script>
+
+  <script src="interno/js/interno-bandeja.js"></script>
+
+  <script src="interno/js/interno-app.js"></script>
+
+</body>
+
+</html>

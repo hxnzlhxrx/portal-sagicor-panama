@@ -1,0 +1,30 @@
+# ===========================================
+# Sagicor Portal
+# <<--- </gishikoDev_> --->>
+# ===========================================
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# Supabase
+.supabase/

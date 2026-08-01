@@ -1,0 +1,711 @@
+<!-- --- </gishikoDev_> 2026 - Hansel Hernandez --- -->
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Autogestión · Sagicor Panamá</title>
+  <link rel="icon" type="image/x-icon" href="public/assets/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <link rel="stylesheet" href="./public/css/public-styles.css" />
+</head>
+
+<body>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- LANDING -->
+  <div class="view active" id="v-landing">
+    <header class="header-pub">
+      <svg class="onda" viewBox="0 0 200 200">
+        <path
+          d="M20 140 C 60 60, 140 40, 185 25 C 150 70, 120 90, 95 100 C 130 105, 160 95, 185 80 C 160 130, 110 160, 60 155 Z"
+          fill="#fff" />
+      </svg>
+      <nav class="nav">
+        <img id="logo-nav" alt="Sagicor Compañía de Seguros">
+        <!-- <button class="btn btn-ghost btn-sm" style="color:#fff;border-color:rgba(255,255,255,.4)" onclick="ir('v-track')">Consultar estado</button> -->
+      </nav>
+      <div class="hero">
+        <div class="kicker">Sagicor Panamá</div>
+        <h1>Portal de Autogestión</h1>
+        <!-- <p>Reclamos, pre-autorizaciones médicas y registro de proveedores. Todo en línea, con seguimiento en tiempo real.</p> -->
+        <p>Reclamos, pre-autorizaciones médicas y registro de proveedores. Todo en línea!</p>
+      </div>
+    </header>
+
+    <!-- // Boton de enlace a Portal Interno <-- </gishikoDev_>  -->
+    <div>
+      <a href="interno.html" class="btn-portal">
+
+        Portal Interno
+
+      </a>
+    </div>
+
+    <div class="banner-car">
+      <div id="banner-slide" class="banner-slide"></div>
+      <div class="banner-dots" id="banner-dots"></div>
+    </div>
+    <div class="wrap">
+      <div class="cards-acceso">
+        <button class="card-acc" onclick="abrirWizard()">
+          <div class="icono">🩺</div>
+          <h3>Presentar un reclamo</h3>
+          <p>Salud individual, colectivo salud, vida y accidentes personales. Formulario guiado según quién presenta.
+          </p>
+          <div class="ir">Iniciar →</div>
+        </button>
+        <!-- <button class="card-acc ambar" onclick="ir('v-preauth')">
+        <div class="icono">📋</div>
+        <h3>Pre-autorización médica</h3>
+        <p>Hospitalización, cirugías electivas, procedimientos y estudios especializados.</p>
+        <div class="ir">Solicitar →</div>
+      </button> -->
+        <!-- <button class="card-acc verde" onclick="ir('v-track')">f
+        <div class="icono">📍</div>
+        <h3>Consultar estado</h3>
+        <p>Siga su reclamo o pre-autorización con su número de radicado y cédula o correo.</p>
+        <div class="ir">Consultar →</div>
+      </button> -->
+        <!-- <button class="card-acc gris" onclick="ir('v-prov')">
+        <div class="icono">🏥</div>
+        <h3>Registro de proveedores</h3>
+        <p>Hospitales, clínicas y médicos: complete su expediente de afiliación a la red en un solo envío.</p>
+        <div class="ir">Registrarme →</div>
+      </button> -->
+        <button class="card-acc" style="border-top-color:#0089B8" onclick="ir('v-red')">
+          <div class="icono">🗺️</div>
+          <h3>Red Médica Sagicor</h3>
+          <p>Consulte los hospitales, clínicas y médicos afiliados. Filtre por especialidad, provincia o nombre.</p>
+          <div class="ir">Explorar red →</div>
+        </button>
+      </div>
+
+      <div class="emergencia">
+        <div class="icono">🚨</div>
+        <div style="flex:1;min-width:230px">
+          <h3>Coordinación y emergencias médicas</h3>
+          <p>En caso de requerir asistencia médica inmediata, comuníquese con <b>Emergencia Sagicor</b> al <b
+              class="tel">280-0200 opción 1</b>, o al <b class="tel">366-0136</b>.</p>
+        </div>
+      </div>
+
+      <section class="seccion" id="sec-formularios">
+        <h2>Formularios</h2>
+        <p class="sub">Descargue, complete y firme el formulario que necesite; luego cárguelo junto con sus documentos
+          en el paso correspondiente.</p>
+        <div class="forms-grid">
+          <div class="form-card">
+            <h4>📄 Formulario de Reclamos de Gastos Médicos</h4>
+            <p>Requerido para reclamos de salud y accidentes personales. Incluye las secciones del asegurado y del
+              médico proveedor, y la guía de presentación.</p>
+            <div class="acciones">
+              <button class="btn btn-azul btn-sm" onclick="descargarPDF('reclamos')">⬇ Descargar</button>
+              <button class="btn btn-ghost btn-sm" onclick="abrirPDF('reclamos')">Ver en línea</button>
+            </div>
+          </div>
+          <div class="form-card">
+            <h4>📄 Formulario de Pre-Autorización de Beneficios</h4>
+            <p>Para hospitalización, cirugías electivas, procedimientos y estudios especializados. Debe someterse al
+              menos 3 días antes de la fecha sugerida para cirugías electivas.</p>
+            <div class="acciones">
+              <button class="btn btn-azul btn-sm" onclick="descargarPDF('preauth')">⬇ Descargar</button>
+              <button class="btn btn-ghost btn-sm" onclick="abrirPDF('preauth')">Ver en línea</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="seccion">
+        <h2>Cómo funciona</h2>
+        <p class="sub">Cuatro pasos, un solo canal, trazabilidad completa.</p>
+        <div class="pasos">
+          <div class="paso">
+            <div class="num">PASO 01</div>
+            <h4>Complete el formulario</h4>
+            <p>Indique quién presenta y el producto. El sistema le muestra exactamente los requisitos que le aplican.
+            </p>
+          </div>
+          <div class="paso">
+            <div class="num">PASO 02</div>
+            <h4>Cargue sus documentos</h4>
+            <p>Suba archivos o tome fotos desde su celular siguiendo la guía. Validamos formato y tamaño antes del
+              envío.</p>
+          </div>
+          <div class="paso">
+            <div class="num">PASO 03</div>
+            <h4>Reciba su radicado</h4>
+            <p>Obtenga al instante un número único que lo acompaña durante todo el proceso.</p>
+          </div>
+          <!-- <div class="paso"><div class="num">PASO 04</div><h4>Siga el avance</h4><p>Consulte en línea cada etapa: recepción, proceso y pago. Sin llamadas, sin incertidumbre.</p></div>
+      </div> -->
+      </section>
+    </div>
+
+    <footer class="footer-pub">
+      <div class="wrap">
+        <img id="logo-footer" alt="Sagicor">
+        <div style="flex:1;min-width:220px">Sagicor Panamá · Operaciones y Reclamos · reclamospa@sagicor.com · 280-0200
+        </div>
+        <div
+          style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:8px 14px;border-radius:999px">
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAAACAvzbMAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nO3df5gkVX3v8Xf1LOu6rMuKBBDJ7ILO0CJRHjGkIVyCxEvEEKPRJbk3icQk/orJ7cd4vcYYw0OUGEMS7cSYGI14EzVkxggKQYI/LqJiuyJRRGxnEXeGdQPrAsu6LMvsdJ37x6nq+tHVMz093X26qj+v5xl6pqe7+ks/O/Xt7znnewpEREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREZOR4rgMQGQdTM/MAxwPbgEngROAE4FhgE7ARWBc83AcWgUPAfuBhYC+wB9gNLOy8dOtDw4teJJsSiEifTc3MbwbODL6eA5wBlIHNfXyZ/cAc0AC+DdwZfO3ZeenWPr6MSGdKICJrMDUzX8Imh3OBc4BK8HPJUUh7gDuArwB1YMfOS7cedBSLFJwSiMgqTc3MHwu8CPh54ELs0NSoWgK+4d3xvXrplm89AOzDDofdDywA9zfq1SWXAUp+KYGIdGFqZn498GLgMuAiYL3biLrkG7zbvkPpazvBmKxHHAZ2YYfD7gK+ia1g7m3Uq/7Q4pRcUgIRWcbUzPyJwOuBVzPalUa7Rw9TuuFreD94sJdnP4QdAvsicAtwuyoVSVMCEckQJI63YBPHBsfhrN7eR5j4ZB1+9Fi/jrgf+CxwPXBDo17VKjBRAhGYnl2Yxk789sYYvGYTjjQxS03M0hKlJR+WligtNfGCr6Uln2ZzCX/Jp7nUhKUmpabPRLNJacmn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ntupAslqBixht6XPqnwOAmdldaGvsQK5BXhjunISGTRNostICeY2vgR8qVypvQOYxs57vCTj4S/DbvXezXF9bFPf3cDflyu1LcAbgD+k/e/gJcCbWd4i8MysFWLB6qgXA1eTXMa7CTu0dlk3MWNXU2Wt2Aq3c/8uNnnMaTt3cUEJRIamXKldQHsD4F2NevU1WY8PTopz5UrtZdhVWJekHvKM4LgbyK4Qfq7Tqq1g/uTycqX2AHa1VNyp5UptXaNeXVrmf6ej4HmfCJJUehL8Jas49l2NevWVvcQgMgyaA5FhOzf1dckKXehh9fBvGb8Kn7eIXTabPnY3W5J8vLuwe3INdmI7bjO2qhLJPSUQGaY7ae+SPon2yiLLZMZ9u6GVYLImjzMrm5RtGffd32v1EdeoVw9hl+6maasRKQQlEBmaYEuSWzJ+dXW5Unth1qqqcqVGuVI7DztfkRYftprN+P1ry5XaHwVzElnHPpH24SuwHfD9ktWguJqlxSIjS3MgMmyXY1dYxT+8HAt8GthRrtRuAuaxlcok9toW59P+YWcXcF3s5w9iO9HTn+7fDryqXKldB3wbO6R0HPCT2Inu9EosH7v1Sb9k7QZ8XB+PL+KMEogMVaNe/VK5Uvsz7OqntLPJ3tspbRF4ZXwvq0a9eqBcqf0q8B+0b2UyCfyvLkP80z4vh83a2VdDWFIIGsISF96KvRpgL/MMB4CXNerVW9K/CO77BXrbjt0H/gxbIfXTfRn3ndbn1xBxQglEhq5Rr9KoV98B/BRwA91tP34YewGon2jUqzcsc+ybgWdht3/P3DYkw63A8xv16lu62fl3lbKu1/GCDtd0F8kVDWGJM8FQ0S8Ek9kXAmdhh5s2ETXL7QK+Dny+095XGcfdC1SDy76eD5yDvY76sdgPTQeBPcA3g+PuWuGQdWxSivPpLvHtAJ5J+4e19M/vor1npJttXURERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERCL/H4T6rwLEageyAAAAAElFTkSuQmCC"
+            alt="SSRP" style="height:32px;background:#fff;border-radius:50%;padding:2px">
+          <span style="font-size:11.5px;line-height:1.35">Regulada y supervisada por la<br><b
+              style="color:#fff">Superintendencia de Seguros y Reaseguros de Panamá</b></span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- WIZARD DE RECLAMO -->
+  <div class="view" id="v-wizard">
+    <button class="volver" onclick="reiniciarWizard();ir('v-landing')">← Volver al inicio</button>
+    <div class="panel">
+      <h2>Presentar un reclamo</h2>
+      <p class="ayuda" id="w-intro">Tiempo estimado: 3–5 minutos.</p>
+      <div class="stepper" id="stepper">
+        <div class="st">Perfil</div>
+        <div class="st">Producto</div>
+        <div class="st">Asegurado</div>
+        <div class="st">Evento</div>
+        <div class="st">Documentos</div>
+        <div class="st">Confirmar</div>
+      </div>
+
+      <!-- Paso 1: quién presenta -->
+      <div class="wstep" data-paso="0">
+        <label class="req">¿Quién presenta el reclamo?</label>
+        <div class="tipos-reclamo" id="perfiles"></div>
+        <p class="error-msg" id="err-perfil" style="display:none">Seleccione quién presenta el reclamo para continuar.
+        </p>
+      </div>
+
+      <!-- Paso 2: producto -->
+      <div class="wstep hidden" data-paso="1">
+
+        <label class="req">Seleccione la línea del reclamo</label>
+
+        <div class="tipos-reclamo" id="tipos"></div>
+
+        <p class="error-msg" id="err-tipo" style="display:none">
+          Seleccione la línea del reclamo.
+        </p>
+
+        <div class="campo" id="campo-producto" style="margin-top:18px">
+
+          <label class="req">Producto de la póliza</label>
+
+          <select id="f-producto">
+            <option value="">Seleccione la línea primero…</option>
+          </select>
+
+          <p class="ayuda">
+            Aparece en su póliza o certificado. Si no lo conoce,
+            elija "No estoy seguro" y el especialista lo validará.
+          </p>
+
+          <p class="error-msg">
+            Seleccione el producto.
+          </p>
+
+        </div>
+        <!-- Tipos de servicio -->
+        <div style="margin-top:24px">
+
+          <h3>Tipo de servicio</h3>
+          <p class="muted">
+            Seleccione el servicio relacionado con su reclamo.
+          </p>
+          <div class="servicios-grid">
+            <label class="servicio-card">
+              <input type="radio" name="servicio" value="H" onchange="selServicio(this.value)">
+
+              <div class="icono">🩺</div>
+              <h4>Servicio Médico</h4>
+              <p>
+                Consultas, hospitalización,
+                cirugías y procedimientos médicos.
+              </p>
+            </label>
+            <label class="servicio-card">
+              <input type="radio" name="servicio" value="D" onchange="selServicio(this.value)">
+
+              <div class="icono">🦷</div>
+              <h4>Servicio Dental</h4>
+              <p>
+                Odontología, ortodoncia,
+                implantes y tratamientos.
+              </p>
+            </label>
+
+            <label class="servicio-card">
+              <input type="radio" name="servicio" value="V" onchange="selServicio(this.value)">
+              <div class="icono">👓</div>
+              <h4>Servicio Óptico</h4>
+              <p>
+                Exámenes visuales,
+                lentes y monturas.
+              </p>
+            </label>
+          </div>
+          <p class="error-msg" id="err-servicio" style="display:none">
+            Seleccione el tipo de servicio.
+          </p>
+        </div>
+      </div>
+
+      <!-- Paso 3: asegurado -->
+      <div class="wstep hidden" data-paso="2">
+        <div class="aviso-inline" id="aviso-perfil"></div>
+        <div class="grid2">
+          <div class="campo"><label class="req">Nombre completo del asegurado</label><input id="f-nombre"
+              placeholder="Ej. María Elena Castillo">
+            <p class="error-msg">Escriba el nombre del asegurado.</p>
+          </div>
+          <div class="campo"><label class="req">Cédula o pasaporte del asegurado</label><input id="f-cedula"
+              placeholder="8-888-8888">
+            <p class="error-msg">Escriba la cédula o pasaporte.</p>
+          </div>
+          <div class="campo"><label>Número de póliza / certificado</label><input id="f-poliza"
+              placeholder="Si lo conoce"></div>
+          <div class="campo"><label class="req">Teléfono de contacto</label><input id="f-tel" placeholder="6000-0000">
+            <p class="error-msg">Escriba un teléfono de contacto.</p>
+          </div>
+          <div class="campo"><label class="req" id="lbl-email">Correo electrónico</label><input id="f-email"
+              type="email" placeholder="nombre@correo.com">
+            <p class="error-msg">Escriba un correo válido.</p>
+          </div>
+          <div class="campo hidden" id="campo-hospital"><label class="req">Hospital / clínica que presenta</label><input
+              id="f-hospital" placeholder="Ej. Hospital Punta Pacífica">
+            <p class="error-msg">Indique el hospital o clínica.</p>
+          </div>
+          <div class="campo hidden" id="campo-corredora"><label>Corredora de seguros</label><input id="f-corredora"
+              placeholder="Nombre de la corredora"></div>
+        </div>
+      </div>
+
+      <!-- Paso 4: evento -->
+      <div class="wstep hidden" data-paso="3">
+        <div class="grid2">
+          <div class="campo"><label class="req">Fecha de atención (primera fecha, incluye facturas)</label><input
+              id="f-fecha" type="date" onchange="SC.validarFechaEvento()">
+            <p class="ayuda" style="margin-top:6px">Solo se aceptan atenciones dentro de los últimos 365 días. No hay
+              cobertura para facturas con fecha mayor a un año desde la radicación.</p>
+            <p class="error-msg" id="err-fecha">Indique una fecha válida dentro de los últimos 365 días.</p>
+          </div>
+          <div class="campo" id="campo-monto">
+            <label id="lbl-monto" class="req">Monto facturado (USD)</label>
+            <input id="f-monto" type="number" min="0" step="0.01" placeholder="0.00">
+            <label id="chk-monto-wrap" class="hidden"
+              style="display:flex;gap:8px;align-items:center;font-weight:500;font-size:13px;margin-top:8px">
+              <input type="checkbox" id="f-sinmonto" style="width:auto" onchange="toggleMonto()"> No conozco el monto
+              exacto
+            </label>
+            <p class="ayuda" id="ayuda-monto"></p>
+            <p class="error-msg" id="err-monto">Indique el monto.</p>
+          </div>
+        </div>
+        <div class="campo" id="campo-proveedor"><label>Proveedor médico / hospital donde se atendió</label><input
+            id="f-proveedor" placeholder="Ej. Hospital Punta Pacífica">
+          <p class="ayuda">Este campo aplica solo cuando presenta un hospital, clínica o proveedor.</p>
+        </div>
+        <div class="campo"><label class="req">Descripción del evento</label><textarea id="f-desc" rows="4"
+            placeholder="Cuéntenos brevemente qué ocurrió: diagnóstico, atención recibida o circunstancias del evento."></textarea>
+          <p class="error-msg">Describa brevemente el evento.</p>
+        </div>
+      </div>
+
+      <!-- Paso 5: documentos -->
+      <div class="wstep hidden" data-paso="4">
+        <div class="tips-foto">📸 <b>Guía para fotos legibles:</b> use buena luz, capture el documento completo sin
+          dedos ni sombras, y verifique que los montos y nombres se lean con claridad. Puede cargar archivos <b>PDF, JPG
+            o PNG</b> o tomar la foto directamente con la cámara. En facturas y resultados puede adjuntar <b>varios
+            archivos</b>.</div>
+        <div class="aviso-inline">¿Necesita el formulario? <button class="btn-link"
+            onclick="descargarPDF('reclamos')">Descargue aquí el Formulario de Reclamos de Gastos Médicos</button>,
+          complételo, fírmelo y cárguelo abajo.</div>
+        <div class="doclist" id="doclist"></div>
+        <p class="error-msg" id="err-docs" style="display:none">Cargue todos los documentos marcados como obligatorios.
+        </p>
+      </div>
+
+      <!-- Paso 6: confirmación -->
+      <div class="wstep hidden" data-paso="5">
+        <h3 style="font-family:var(--serif);color:var(--profundo);margin-bottom:12px">Revise antes de enviar</h3>
+        <dl class="resumen" id="resumen"></dl>
+        <div class="campo" style="margin-top:16px">
+          <label style="display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:13.5px">
+            <input type="checkbox" id="f-consent" style="width:auto;margin-top:2px">
+            <span>Declaro que la información es veraz y otorgo consentimiento expreso a Sagicor Panamá para el
+              tratamiento de mis datos personales, incluidos datos de salud, conforme a la Ley 81 de 2019 y la Ley 12 de
+              2012, para la gestión de esta solicitud.</span>
+          </label>
+          <p class="error-msg" id="err-consent">Debe aceptar la declaración para enviar.</p>
+        </div>
+      </div>
+
+      <!-- Éxito -->
+      <div class="wstep hidden" data-paso="6">
+        <div class="radicado-box">
+          <div class="check-grande">✓</div>
+          <h3 style="font-family:var(--serif);color:var(--profundo);margin-top:18px">¡Reclamo recibido!</h3>
+          <div class="num" id="radicado-num"></div>
+
+          <div id="ticket-reclamo" class="ticket hidden">
+            <div class="ticket-header">
+              <img src="img/logo-white.png" alt="Sagicor" class="ticket-logo">
+
+              <h2>Comprobante de Recepción</h2>
+            </div>
+
+            <hr>
+
+            <div class="ticket-item">
+              <span>Código</span>
+              <strong id="t-codigo"></strong>
+            </div>
+
+            <div class="ticket-item">
+              <span>Presentado por</span>
+              <strong id="t-perfil"></strong>
+            </div>
+
+            <div class="ticket-item">
+              <span>Línea</span>
+              <strong id="t-linea"></strong>
+            </div>
+
+            <div class="ticket-item">
+              <span>Producto</span>
+              <strong id="t-producto"></strong>
+            </div>
+
+            <div class="ticket-item">
+              <span>Servicio</span>
+              <strong id="t-servicio"></strong>
+            </div>
+
+            <div class="ticket-item">
+              <span>Fecha del evento</span>
+              <strong id="t-fecha-evento"></strong>
+            </div>
+
+            <div class="ticket-item">
+              <span>Recibido</span>
+              <strong id="t-fecha-recepcion"></strong>
+            </div>
+            <hr>
+            <p class="ticket-nota">
+              Este comprobante confirma únicamente la recepción
+              del reclamo.
+              No representa aprobación de cobertura.
+              Conserve este documento.
+            </p>
+          </div>
+          <p style="max-width:440px;margin:0 auto;font-size:14px;color:var(--pizarra)">Guarde este número. Le enviamos
+            un acuse al correo registrado. Puede consultar el avance en cualquier momento con su radicado y su cédula o
+            correo.</p>
+          <div style="margin-top:22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <!-- <button class="btn btn-azul" onclick="ir('v-track')">Seguir mi reclamo</button> -->
+            <button class="btn btn-ghost" onclick="reiniciarWizard();ir('v-landing')">Volver al inicio</button>
+            <button class="btn btn-verde" id="btn-pdf">
+
+              📄 Descargar comprobante PDF
+
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-wizard" id="nav-wizard">
+        <button class="btn btn-ghost" id="btn-atras" onclick="pasoWizard(-1)">← Atrás</button>
+        <button class="btn btn-azul" id="btn-sig" onclick="pasoWizard(1)">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRE-AUTORIZACIÓN -->
+  <div class="view" id="v-preauth">
+    <button class="volver" onclick="ir('v-landing')">← Volver al inicio</button>
+    <div class="panel">
+      <h2>Solicitud de pre-autorización médica</h2>
+      <p class="ayuda" style="margin-bottom:6px">Para hospitalización, cirugías electivas, procedimientos y estudios
+        especializados.</p>
+      <div class="tips-foto" style="margin-top:14px">⏱️ <b>Importante:</b> para cirugías electivas, someta esta
+        solicitud <b>al menos 3 días antes</b> de la fecha sugerida. La pre-autorización es válida por <b>30 días</b>.
+        Para urgencias, llame al <b>280-0200 opción 1</b>.</div>
+
+      <div id="pa-form">
+        <h3 style="font-family:var(--serif);color:var(--profundo);margin:8px 0 14px;font-size:17px">Datos de la
+          solicitud</h3>
+        <div class="grid2">
+          <div class="campo"><label class="req">Nombre del asegurado titular</label><input id="pa-asegurado">
+            <p class="error-msg">Indique el asegurado titular.</p>
+          </div>
+          <div class="campo"><label class="req">Cédula o pasaporte del asegurado</label><input id="pa-cedula">
+            <p class="error-msg">Indique la cédula.</p>
+          </div>
+          <div class="campo"><label class="req">Nombre del paciente</label><input id="pa-paciente">
+            <p class="error-msg">Indique el paciente.</p>
+          </div>
+          <div class="campo"><label>Parentesco con el asegurado</label><select id="pa-parentesco">
+              <option>Titular</option>
+              <option>Cónyuge</option>
+              <option>Hijo(a)</option>
+              <option>Otro</option>
+            </select></div>
+          <div class="campo"><label>Número de póliza</label><input id="pa-poliza" placeholder="Si lo conoce"></div>
+          <div class="campo"><label class="req">Correo para la confirmación</label><input id="pa-email" type="email">
+            <p class="error-msg">Correo válido requerido.</p>
+          </div>
+          <div class="campo"><label class="req">Teléfono de contacto</label><input id="pa-tel">
+            <p class="error-msg">Teléfono requerido.</p>
+          </div>
+          <div class="campo"><label class="req">Tipo de solicitud</label>
+            <select id="pa-tipo">
+              <option value="">Seleccione…</option>
+              <option>Hospitalización</option>
+              <option>Cirugía ambulatoria</option>
+              <option>Examen y/o procedimiento especial ambulatorio</option>
+              <option>Rayos X y laboratorios</option>
+            </select>
+            <p class="error-msg">Seleccione el tipo.</p>
+          </div>
+          <div class="campo"><label class="req">Médico tratante</label><input id="pa-medico">
+            <p class="error-msg">Indique el médico tratante.</p>
+          </div>
+          <div class="campo"><label>Hospital / centro donde se realizará</label><input id="pa-hospital"></div>
+          <div class="campo"><label>Fecha sugerida de ingreso o del procedimiento</label><input id="pa-fecha"
+              type="date"></div>
+          <div class="campo"><label style="display:flex;gap:8px;align-items:center;margin-top:26px"><input
+                type="checkbox" id="pa-urgente" style="width:auto"> Marcar como <b>URGENTE</b></label></div>
+        </div>
+        <div class="campo"><label class="req">Diagnóstico y procedimientos requeridos</label><textarea id="pa-desc"
+            rows="4"
+            placeholder="Describa el cuadro clínico, diagnóstico y los procedimientos solicitados (según el informe del médico tratante)."></textarea>
+          <p class="error-msg">Describa el diagnóstico y los procedimientos.</p>
+        </div>
+
+        <h3 style="font-family:var(--serif);color:var(--profundo);margin:16px 0 12px;font-size:17px">Documentos
+          requeridos</h3>
+        <div class="aviso-inline">¿Aún no tiene el formulario? <button class="btn-link"
+            onclick="descargarPDF('preauth')">Descargue aquí el Formulario de Pre-Autorización de Beneficios
+            Sagicor</button>, complételo con su médico y cárguelo abajo.</div>
+        <div class="doclist" id="pa-docs"></div>
+        <div class="campo" style="margin-top:16px">
+          <label style="display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:13.5px">
+            <input type="checkbox" id="pa-consent" style="width:auto;margin-top:2px">
+            <span>Autorizo a Sagicor Panamá a tratar mis datos personales y de salud para la evaluación de esta
+              pre-autorización, conforme a la normativa vigente.</span>
+          </label>
+        </div>
+        <div style="margin-top:20px;display:flex;justify-content:flex-end">
+          <button class="btn btn-verde" onclick="enviarPreauth()">Enviar solicitud →</button>
+        </div>
+      </div>
+
+      <div id="pa-ok" class="hidden radicado-box">
+        <div class="check-grande">✓</div>
+        <h3 style="font-family:var(--serif);color:var(--profundo);margin-top:18px">Solicitud de pre-autorización
+          recibida</h3>
+        <div class="num" id="pa-num"></div>
+        <p style="max-width:460px;margin:0 auto;font-size:14px;color:var(--pizarra)">Nuestros médicos asesores evaluarán
+          su solicitud. Recibirá la confirmación al correo indicado. Recuerde: antes de referir al paciente al hospital
+          o realizar el estudio, debe tener la autorización escrita de Sagicor Panamá.</p>
+        <div style="margin-top:22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-azul" onclick="ir('v-track')">Seguir mi solicitud</button>
+          <button class="btn btn-ghost" onclick="ir('v-landing')">Volver al inicio</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKING -->
+  <div class="view" id="v-track">
+    <button class="volver" onclick="ir('v-landing')">← Volver al inicio</button>
+    <div class="panel" style="max-width:640px">
+      <h2>Consultar estado</h2>
+      <p class="ayuda" style="margin-bottom:20px">Funciona para reclamos (SGP-…) y pre-autorizaciones (PA-…).</p>
+      <div class="grid2">
+        <div class="campo"><label class="req">Número de radicado</label><input id="t-num"
+            placeholder="SGP-2026-00001 o PA-2026-001" style="font-family:var(--mono)"></div>
+        <div class="campo"><label class="req">Cédula o correo del asegurado</label><input id="t-id"
+            placeholder="8-888-8888 o correo"></div>
+      </div>
+      <button class="btn btn-azul" onclick="buscarTracking()">Consultar</button>
+      <p class="ayuda" style="margin-top:10px">Demo: pruebe <b class="mono">SGP-2026-00003</b> con cédula <b
+          class="mono">8-712-455</b>, o <b class="mono">PA-2026-001</b> con cédula <b class="mono">8-401-220</b>.</p>
+      <div id="t-resultado" class="hidden" style="margin-top:26px">
+        <div style="margin-bottom:14px"><span class="badge b-azul" id="t-estado"></span></div>
+        <div style="font-size:14px" id="t-cabecera"></div>
+        <div class="timeline" id="t-timeline"></div>
+      </div>
+      <p class="error-msg" id="t-error" style="display:none;margin-top:14px">No encontramos una solicitud con esos
+        datos. Verifique el radicado y su identificación.</p>
+    </div>
+  </div>
+
+  <!-- ONBOARDING PROVEEDORES -->
+  <div class="view" id="v-prov">
+    <button class="volver" onclick="ir('v-landing')">← Volver al inicio</button>
+    <div class="panel">
+      <h2>Registro de nuevos proveedores</h2>
+      <p class="ayuda" style="margin-bottom:22px">Para hospitales, clínicas, laboratorios y médicos que desean afiliarse
+        a la red de Sagicor Panamá. Complete el expediente en un solo envío; el equipo de Red Médica revisará su
+        solicitud.</p>
+      <div id="prov-form">
+        <div class="grid2">
+          <div class="campo"><label class="req">Razón social / nombre</label><input id="p-nombre">
+            <p class="error-msg">Escriba la razón social.</p>
+          </div>
+          <div class="campo"><label class="req">RUC / cédula</label><input id="p-ruc">
+            <p class="error-msg">Escriba el RUC.</p>
+          </div>
+          <div class="campo"><label class="req">Tipo de proveedor</label>
+            <select id="p-tipo">
+              <option value="">Seleccione…</option>
+              <option>Hospital / clínica</option>
+              <option>Médico especialista</option>
+              <option>Laboratorio / imágenes</option>
+              <option>Farmacia</option>
+              <option>Otro</option>
+            </select>
+            <p class="error-msg">Seleccione el tipo.</p>
+          </div>
+          <div class="campo"><label class="req">Especialidad / servicios</label><input id="p-esp"
+              placeholder="Ej. Ortopedia, urgencias">
+            <p class="error-msg">Indique la especialidad.</p><label
+              style="display:flex;gap:8px;align-items:center;font-weight:500;font-size:13px;margin-top:10px"><input
+                type="checkbox" id="p-tiene-sub" style="width:auto" onchange="SC.togSubesp()"> Posee
+              subespecialidad</label>
+            <div id="p-sub-wrap" class="hidden" style="margin-top:8px"><input id="p-sub"
+                placeholder="Nombre de la subespecialidad"></div>
+          </div>
+          <div class="campo"><label class="req">Persona de contacto</label><input id="p-contacto">
+            <p class="error-msg">Indique un contacto.</p>
+          </div>
+          <div class="campo"><label class="req">Correo</label><input id="p-email" type="email">
+            <p class="error-msg">Correo requerido.</p>
+          </div>
+          <div class="campo"><label class="req">Teléfono</label><input id="p-tel">
+            <p class="error-msg">Teléfono requerido.</p>
+          </div>
+          <div class="campo"><label>Provincia / dirección</label><input id="p-dir"></div>
+        </div>
+        <h3 style="font-family:var(--serif);color:var(--profundo);margin:14px 0 12px;font-size:17px">Documentos del
+          expediente</h3>
+        <div class="doclist" id="p-docs"></div>
+        <div style="margin-top:22px;display:flex;justify-content:flex-end">
+          <button class="btn btn-verde" onclick="enviarProveedor()">Enviar solicitud →</button>
+        </div>
+      </div>
+      <div id="prov-ok" class="hidden radicado-box">
+        <div class="check-grande">✓</div>
+        <h3 style="font-family:var(--serif);color:var(--profundo);margin-top:18px">Solicitud recibida</h3>
+        <div class="num" id="prov-num"></div>
+        <p style="max-width:440px;margin:0 auto;font-size:14px;color:var(--pizarra)">El equipo de Red Médica revisará su
+          expediente y le contactará al correo registrado.</p>
+        <button class="btn btn-ghost" style="margin-top:20px" onclick="ir('v-landing')">Volver al inicio</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- RED MÉDICA -->
+  <div class="view" id="v-red">
+    <button class="volver" onclick="ir('v-landing')">← Volver al inicio</button>
+    <div class="panel" style="max-width:1120px">
+      <h2>Red Médica Sagicor</h2>
+      <p class="ayuda" style="margin-bottom:6px">Directorio oficial de prestadores contratados. Corte: <b>05 de julio de
+          2026</b>.</p>
+      <div class="tips-foto" style="margin-top:14px">💡 <b>Tip:</b> los proveedores fuera de la red se cubren al
+        <b>60%</b> de la tarifa aprobada, contra reembolso. Dentro de la red, el asegurado sólo paga su co-pago según el
+        plan.</div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="campo"><label>Especialidad</label><select id="rm-esp">
+            <option value="">Todas las especialidades</option>
+          </select></div>
+        <div class="campo"><label>Provincia</label><select id="rm-prov">
+            <option value="">Todas las provincias</option>
+          </select></div>
+      </div>
+      <div class="campo"><label>Buscar por nombre, hospital o ciudad</label><input id="rm-q"
+          placeholder="Ej. Paitilla, Chiriquí, Dr. Mantilla…"></div>
+      <p class="ayuda" id="rm-count" style="margin:6px 0 12px"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-azul btn-sm" onclick="descargarRedPDF(false)">⬇ Descargar directorio completo
+          (PDF)</button>
+        <button class="btn btn-verde btn-sm" onclick="descargarRedXLSX(false)">⬇ Descargar completo (Excel)</button>
+        <button class="btn btn-ghost btn-sm" onclick="descargarRedPDF(true)">📄 Exportar resultados filtrados
+          (PDF)</button>
+        <button class="btn btn-ghost btn-sm" onclick="descargarRedXLSX(true)">📊 Exportar filtrados (Excel)</button>
+      </div>
+      <div class="chips-esp" id="chips-esp" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+      <div style="overflow-x:auto;max-height:520px;overflow-y:auto;border:1px solid var(--niebla);border-radius:12px">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead style="position:sticky;top:0;background:var(--bruma);z-index:1">
+            <tr>
+              <th
+                style="text-align:left;padding:9px 11px;color:var(--pizarra);font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--niebla)">
+                Especialidad</th>
+              <th
+                style="text-align:left;padding:9px 11px;color:var(--pizarra);font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--niebla)">
+                Nombre / Proveedor</th>
+              <th
+                style="text-align:left;padding:9px 11px;color:var(--pizarra);font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--niebla)">
+                Dirección</th>
+              <th
+                style="text-align:left;padding:9px 11px;color:var(--pizarra);font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--niebla)">
+                Provincia</th>
+              <th
+                style="text-align:left;padding:9px 11px;color:var(--pizarra);font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--niebla)">
+                Teléfono</th>
+            </tr>
+          </thead>
+          <tbody id="rm-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <footer class="gishiko-footer">
+
+    gishikoDev_ · 2026 · Derechos Reservados
+
+    <span>
+
+      "El futuro se programa hoy..."
+
+    </span>
+
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="public/js/public-supabase.js"></script>
+
+  <script src="public/js/public-repository.js"></script>
+
+  <script src="public/js/public-storageRepository.js"></script>
+
+  <script src="public/js/public-app.js"></script>
+</body>
+
+</html>
