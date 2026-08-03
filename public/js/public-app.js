@@ -1044,13 +1044,17 @@ async function pasoWizard(dir){
     );
     refrescarWizard();
 
-window.scrollTo({
+setTimeout(() => {
 
-    top: 0,
+    window.scrollTo({
 
-    behavior: "smooth"
+        top: 0,
 
-});
+        behavior: "smooth"
+
+    });
+
+}, 50);
 
 }
 
@@ -1070,9 +1074,9 @@ async function enviarReclamo(){
 
     console.clear();
 
-    console.log("====================================");
+    console.log("===================================");
     console.log("INICIANDO ENVÍO DEL RECLAMO");
-    console.log("====================================");
+    console.log("===================================");
 
     const codigo = obtenerCodigoReclamo();
 
@@ -1084,46 +1088,46 @@ async function enviarReclamo(){
 
         servicio: wizard.servicio,
 
-        producto: $("f-producto").value,
+        producto: $('f-producto').value,
 
-        nombre: $("f-nombre").value.trim(),
+        nombre: $('f-nombre').value.trim(),
 
-        cedula: $("f-cedula").value.trim(),
+        cedula: $('f-cedula').value.trim(),
 
-        email: $("f-email").value.trim(),
+        email: $('f-email').value.trim(),
 
-        tel: $("f-tel").value.trim(),
+        tel: $('f-tel').value.trim(),
 
-        poliza: $("f-poliza")?.value.trim() || "",
+        poliza: $('f-poliza')?.value.trim() || "",
 
         perfil_presenta: wizard.perfil,
 
         hospital:
             wizard.perfil === "hospital"
-                ? $("f-hospital").value.trim()
+                ? $('f-hospital').value.trim()
                 : null,
 
         corredora:
             wizard.perfil === "corredor"
-                ? $("f-corredora")?.value.trim() || null
+                ? $('f-corredora')?.value.trim() || null
                 : null,
 
         origen: "Portal Web",
 
-        fecha_evento: $("f-fecha").value,
+        fecha_evento: $('f-fecha').value,
 
         monto:
-            $("f-sinmonto")?.checked
+            $('f-sinmonto')?.checked
                 ? null
                 : (
-                    $("f-monto").value
-                        ? Number($("f-monto").value)
+                    $('f-monto').value
+                        ? Number($('f-monto').value)
                         : null
                 ),
 
-        proveedor: $("f-proveedor").value.trim(),
+        proveedor: $('f-proveedor').value.trim(),
 
-        descripcion: $("f-desc").value.trim(),
+        descripcion: $('f-desc').value.trim(),
 
         estado: "Recibido",
 
@@ -1143,7 +1147,7 @@ async function enviarReclamo(){
         const nuevoReclamo =
             await ReclamosRepository.crear(reclamo);
 
-        console.log("RECLAMO CREADO");
+        console.log("OK 1");
         console.log(nuevoReclamo);
 
         console.log("2. Subiendo documentos...");
@@ -1153,13 +1157,15 @@ async function enviarReclamo(){
                 nuevoReclamo.id
             );
 
-        console.log("DOCUMENTOS SUBIDOS:", cantidadDocumentos);
+        console.log("OK 2");
+        console.log("Documentos:", cantidadDocumentos);
 
         console.log("3. Verificando reclamo...");
 
         const verificacion =
             await ReclamosRepository.buscar(codigo);
 
+        console.log("OK 3");
         console.log(verificacion);
 
         if(!verificacion){
@@ -1170,11 +1176,30 @@ async function enviarReclamo(){
 
         }
 
-        $("radicado-num").textContent = codigo;
+        if(verificacion.num !== codigo){
+
+            toast("La verificación del reclamo falló.");
+
+            return;
+
+        }
+
+        console.log("4. Pintando código...");
+
+        $('radicado-num').textContent = codigo;
+
+        console.log("OK 4");
+
+        // Si ya no descargas automáticamente el PDF,
+        // deja esta línea comentada.
+
+        // await descargarTicketPDF();
+
+        console.log("5. Cambiando a pantalla de éxito...");
 
         document
             .querySelectorAll(".wstep")
-            .forEach(w=>
+            .forEach(w=>{
 
                 w.classList.toggle(
 
@@ -1182,9 +1207,13 @@ async function enviarReclamo(){
 
                     w.dataset.paso !== "6"
 
-                )
+                );
 
-            );
+            });
+
+        console.log("OK 5");
+
+        console.log("6. Pintando stepper...");
 
         document
             .querySelectorAll("#stepper .st")
@@ -1196,27 +1225,48 @@ async function enviarReclamo(){
 
             });
 
-        $("nav-wizard")
+        console.log("OK 6");
+
+        console.log("7. Ocultando navegación...");
+
+        $('nav-wizard')
             .classList.add("hidden");
 
-        console.log("RECLAMO FINALIZADO");
+        console.log("OK 7");
+
+        console.log("8. Toast éxito...");
 
         toast(
+
             "Reclamo " +
+
             codigo +
-            " enviado correctamente."
+
+            " enviado con éxito"
+
         );
 
-    }
+        console.log("OK 8");
 
+        console.log("===================================");
+        console.log("FLUJO TERMINADO CORRECTAMENTE");
+        console.log("===================================");
+
+    }
     catch(error){
 
-        console.error("ERROR GENERAL");
+        console.log("===================================");
+        console.log("ERROR EN EL FLUJO");
+        console.log("===================================");
 
         console.error(error);
 
+        console.error(error.stack);
+
         toast(
+
             "No fue posible enviar el reclamo."
+
         );
 
     }
@@ -1307,6 +1357,8 @@ async function subirDocumentosReclamo(reclamoId){
 
                 total++;
 
+                console.log("ANTES DE TERMINAR EL FOR");
+
             }
 
             catch(error){
@@ -1321,11 +1373,17 @@ async function subirDocumentosReclamo(reclamoId){
 
         }
 
+        console.log("SALÍ DEL SEGUNDO FOR");
+
     }
+
+    console.log("SALÍ DEL FOR");
 
     console.log("TOTAL DOCUMENTOS:", total);
 
     console.log("==============================");
+
+    console.log("VOY A HACER RETURN");
 
     return total;
 
