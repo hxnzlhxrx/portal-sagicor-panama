@@ -92,13 +92,24 @@ label{display:block;font-size:13px;font-weight:600;color:var(--profundo);margin-
 .panel h2{font-size:26px}
 .stepper{display:flex;gap:0;margin:26px 0 30px;counter-reset:s}
 .stepper .st{flex:1;text-align:center;position:relative;font-size:11.5px;font-weight:600;color:var(--pizarra);padding-top:34px}
-.stepper .st::before{counter-increment:s;content:counter(s);position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:var(--niebla);color:var(--pizarra);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;z-index:2}
-.stepper .st::after{content:"";position:absolute;top:13px;left:-50%;width:100%;height:3px;background:var(--niebla);z-index:1}
+.stepper .st::before{
+    counter-increment:s;
+    content:"";
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:var(--niebla);
+    z-index:2;
+}
 .stepper .st:first-child::after{display:none}
-.stepper .st.hecho::before{background:var(--verde);color:#fff;content:"✓"}
+.stepper .st.hecho::before{background:var(--verde);color:#fff;content:""}
 .stepper .st.hecho::after{background:linear-gradient(90deg,var(--verde),var(--azul))}
 .stepper .st.actual{color:var(--profundo)}
-.stepper .st.actual::before{background:var(--azul);color:#fff}
+.stepper .st.actual::before{background:var(--azul)}
 .stepper .st.actual::after{background:linear-gradient(90deg,var(--verde),var(--azul))}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:620px){.grid2{grid-template-columns:1fr}}
@@ -345,37 +356,23 @@ label{display:block;font-size:13px;font-weight:600;color:var(--profundo);margin-
 }
 
 .gishiko-footer{
-
-    padding:18px;
-
+    padding:8px;
     text-align:center;
-
     font-size:.80rem;
-
     color:#676767;
-
-    opacity: 0.5;;
-
+    opacity: 0.3;;
     user-select:none;
-
     transition:.3s;
-
 }
 
 .gishiko-footer:hover{
-
-    opacity:.9;
-
+    opacity:1;
 }
 
 .gishiko-footer span{
-
     display:block;
-
     margin-top:4px;
-
     font-style:italic;
-
 }
 
 /* --- separator --- */

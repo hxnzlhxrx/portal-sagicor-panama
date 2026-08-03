@@ -462,7 +462,6 @@ function obtenerCodigoReclamo(){
 
 }
 
-// Funcion que toma el codigo de reclamo y lo asigna a el nombre del archivo PDF <<-- </gishikoDev_> -->>
 function obtenerResumenReclamo(){
 
     return {
@@ -470,7 +469,7 @@ function obtenerResumenReclamo(){
         codigo: obtenerCodigoReclamo(),
 
         perfil: PERFILES.find(
-            p=>p.id===wizard.perfil
+            p => p.id === wizard.perfil
         )?.nombre || "",
 
         linea: lineaNombre(wizard.tipo),
@@ -491,16 +490,18 @@ function obtenerResumenReclamo(){
 
         email:$('f-email').value,
 
-        fecha:$('f-fecha').value,
+        fechaEvento:$('f-fecha').value,
 
         monto:
-            wizard.perfil!=="hospital" &&
+            wizard.perfil !== "hospital" &&
             (
                 $('f-sinmonto').checked ||
                 !$('f-monto').value
             )
             ? "Por determinar"
             : money($('f-monto').value || 0),
+
+        proveedor:$('f-proveedor').value,
 
         descripcion:$('f-desc').value,
 
@@ -1042,6 +1043,14 @@ async function pasoWizard(dir){
         Math.min(5,p+dir)
     );
     refrescarWizard();
+
+window.scrollTo({
+
+    top: 0,
+
+    behavior: "smooth"
+
+});
 
 }
 
