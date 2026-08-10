@@ -327,27 +327,24 @@ function reservarConsecutivo(){
  
 function siguienteConsecutivo(){
 
-    console.log("===================================");
-    console.log("RESERVANDO SIGUIENTE CONSECUTIVO");
-    console.log("===================================");
-
     const hoy = new Date();
 
-    const yy = String(
-        hoy.getFullYear()
-    ).slice(-2);
+    const yy =
+        String(hoy.getFullYear()).slice(-2);
 
-    const inicio = new Date(
-        hoy.getFullYear(),
-        0,
-        0
-    );
+    const inicio =
+        new Date(
+            hoy.getFullYear(),
+            0,
+            0
+        );
 
-    const juliano = String(
-        Math.floor(
-            (hoy - inicio) / 86400000
-        )
-    ).padStart(3,"0");
+    const juliano =
+        String(
+            Math.floor(
+                (hoy - inicio) / 86400000
+            )
+        ).padStart(3,"0");
 
     const clave =
         `SGP-${yy}${juliano}`;
@@ -373,12 +370,20 @@ function siguienteConsecutivo(){
     );
 
     console.log(
-        "Nueva clave diaria:",
+        "================================="
+    );
+
+    console.log(
+        "NUEVO CONSECUTIVO POR COLISIÓN"
+    );
+
+    console.log(
+        "Clave del día:",
         clave
     );
 
     console.log(
-        "Nuevo consecutivo:",
+        "Nuevo número:",
         consecutivoReservado
     );
 
@@ -387,8 +392,11 @@ function siguienteConsecutivo(){
         obtenerCodigoReclamo()
     );
 
-    return consecutivoReservado;
+    console.log(
+        "================================="
+    );
 
+    return consecutivoReservado;
 }
 
 function obtenerJuliano(){
@@ -1248,6 +1256,8 @@ window.cargarDocW = cargarDocW;
 //                <<--- </gishikoDev_> --->>
 async function enviarReclamo(){
 
+    console.log("[FIREFOX TEST] enviarReclamo() INICIO");
+
     console.clear();
 
     console.log("===================================");
@@ -1256,6 +1266,9 @@ async function enviarReclamo(){
 
     mostrarProgresoEnvio();
 
+    let nuevoReclamo = null;
+    let reclamoCreado = false;
+
     try{
 
         actualizarProgresoEnvio(
@@ -1263,14 +1276,13 @@ async function enviarReclamo(){
             "Preparando los datos del reclamo..."
         );
 
-        const codigo =
+        let codigo =
             obtenerCodigoReclamo();
 
         console.log(
             "Código inicial:",
             codigo
         );
-
 
         // ==========================================
         // CONSTRUCCIÓN DEL RECLAMO
@@ -1280,9 +1292,11 @@ async function enviarReclamo(){
 
             num: codigo,
 
-            linea: wizard.tipo,
+            linea:
+                wizard.tipo,
 
-            servicio: wizard.servicio,
+            servicio:
+                wizard.servicio,
 
             producto:
                 $('f-producto').value,
@@ -1349,12 +1363,13 @@ async function enviarReclamo(){
 
         };
 
-
         console.log(
             "RECLAMO A INSERTAR"
         );
 
-        console.log(reclamo);
+        console.log(
+            reclamo
+        );
 
 
         // ==========================================
@@ -1371,10 +1386,181 @@ async function enviarReclamo(){
             "1. Creando reclamo..."
         );
 
-        const nuevoReclamo =
-            await ReclamosRepository.crear(
-                reclamo
+
+        /*
+         * Intentamos crear el reclamo.
+         *
+         * Si existe una colisión de consecutivo,
+         * generamos automáticamente el siguiente
+         * número y volvemos a intentar.
+         */
+
+        const MAX_REINTENTOS = 10;
+
+        for(
+            let intento = 1;
+            intento <= MAX_REINTENTOS;
+            intento++
+        ){
+
+            try{
+
+                console.log(
+                    "-----------------------------------"
+                );
+
+                console.log(
+                    "INTENTO DE INSERT:",
+                    intento
+                );
+
+                console.log(
+                    "Código:",
+                    reclamo.num
+                );
+
+                nuevoReclamo =
+                    await ReclamosRepository.crear(
+                        reclamo
+                    );
+
+                reclamoCreado = true;
+
+                console.log(
+                    "[FIREFOX TEST] CREAR OK"
+                );
+
+                console.log(
+                    "Reclamo creado:",
+                    nuevoReclamo
+                );
+
+                break;
+
+            }
+            catch(error){
+
+                console.error(
+                    "ERROR CREANDO RECLAMO"
+                );
+
+                console.error(
+                    error
+                );
+
+                console.error(
+                    "Código que produjo el error:",
+                    reclamo.num
+                );
+
+
+                // ==================================
+                // COLISIÓN DE CONSECUTIVO
+                // ==================================
+
+                const esColision =
+                    error?.code === "23505" &&
+                    (
+                        error?.message || ""
+                    ).includes(
+                        "reclamos_num_key"
+                    );
+
+                if(!esColision){
+
+                    console.error(
+                        "El error NO corresponde a una colisión."
+                    );
+
+                    throw error;
+
+                }
+
+
+                console.warn(
+                    "⚠️ COLISIÓN DE CONSECUTIVO"
+                );
+
+                console.warn(
+                    "El código",
+                    reclamo.num,
+                    "ya existe."
+                );
+
+
+                if(
+                    intento >= MAX_REINTENTOS
+                ){
+
+                    console.error(
+                        "Se agotaron los reintentos."
+                    );
+
+                    throw error;
+
+                }
+
+
+                actualizarProgresoEnvio(
+                    22 + (intento * 2),
+                    "Ajustando el número de reclamo..."
+                );
+
+
+                /*
+                 * Generamos automáticamente
+                 * el siguiente consecutivo.
+                 */
+
+                siguienteConsecutivo();
+
+
+                /*
+                 * MUY IMPORTANTE:
+                 *
+                 * Actualizamos el objeto que será
+                 * enviado al INSERT.
+                 */
+
+                codigo =
+                    obtenerCodigoReclamo();
+
+                reclamo.num =
+                    codigo;
+
+
+                console.log(
+                    "Nuevo código para retry:",
+                    codigo
+                );
+
+
+                /*
+                 * Pequeña pausa para permitir que
+                 * Firefox/Android/iOS actualicen
+                 * visualmente el progress.
+                 */
+
+                await new Promise(
+                    resolve =>
+                        requestAnimationFrame(
+                            resolve
+                        )
+                );
+
+            }
+
+        }
+
+
+        if(!reclamoCreado){
+
+            throw new Error(
+                "No fue posible crear el reclamo."
             );
+
+        }
+
 
         console.log(
             "OK 1"
@@ -1405,6 +1591,10 @@ async function enviarReclamo(){
             );
 
         console.log(
+            "[FIREFOX TEST] DOCUMENTOS OK"
+        );
+
+        console.log(
             "OK 2"
         );
 
@@ -1428,23 +1618,23 @@ async function enviarReclamo(){
             "3. Verificando reclamo..."
         );
 
-        /*
-         * Pequeña pausa visual.
-         *
-         * No modifica la lógica.
-         * Permite que el navegador pinte
-         * el estado antes de iniciar
-         * la consulta.
-         */
 
         await new Promise(
-            resolve => requestAnimationFrame(resolve)
+            resolve =>
+                requestAnimationFrame(
+                    resolve
+                )
         );
+
 
         const verificacion =
             await ReclamosRepository.buscar(
                 codigo
             );
+
+        console.log(
+            "[FIREFOX TEST] BUSQUEDA OK"
+        );
 
         console.log(
             "OK 3"
@@ -1525,9 +1715,21 @@ async function enviarReclamo(){
             "4. Pintando código..."
         );
 
+
+        /*
+         * Aquí utilizamos `codigo`, que ya contiene
+         * el nuevo consecutivo en caso de collision.
+         */
+
         $('radicado-num')
             .textContent =
             codigo;
+
+
+        console.log(
+            "Código final:",
+            codigo
+        );
 
         console.log(
             "OK 4"
@@ -1548,19 +1750,18 @@ async function enviarReclamo(){
             "5. Cambiando a pantalla de éxito..."
         );
 
+
         document
             .querySelectorAll(".wstep")
             .forEach(w=>{
 
                 w.classList.toggle(
-
                     "hidden",
-
                     w.dataset.paso !== "6"
-
                 );
 
             });
+
 
         console.log(
             "OK 5"
@@ -1591,6 +1792,7 @@ async function enviarReclamo(){
 
             });
 
+
         console.log(
             "OK 6"
         );
@@ -1609,6 +1811,7 @@ async function enviarReclamo(){
                 "hidden"
             );
 
+
         console.log(
             "OK 7"
         );
@@ -1623,16 +1826,11 @@ async function enviarReclamo(){
             "¡Reclamo enviado correctamente!"
         );
 
+
         console.log(
             "8. Flujo completado."
         );
 
-
-        /*
-         * Dejamos el 100% visible brevemente.
-         * Después desaparece para revelar
-         * la pantalla de éxito.
-         */
 
         await new Promise(
             resolve =>
@@ -1641,6 +1839,7 @@ async function enviarReclamo(){
                     700
                 )
         );
+
 
         ocultarProgresoEnvio();
 
@@ -1661,9 +1860,13 @@ async function enviarReclamo(){
         );
 
         console.log(
-            "==================================="
+            "Código final:",
+            codigo
         );
 
+        console.log(
+            "==================================="
+        );
 
     }
     catch(error){
@@ -1706,6 +1909,11 @@ async function enviarReclamo(){
         );
 
     }
+
+
+    console.log(
+        "[FIREFOX TEST] FIN REAL DE enviarReclamo()"
+    );
 
 }
 
