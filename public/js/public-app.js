@@ -251,67 +251,63 @@ function cargarGenerico(
 
 function reservarConsecutivo(){
 
-    if(consecutivoReservado)
-        return consecutivoReservado;
-
-    const hoy = new Date();
-
-    const yy =
-        String(hoy.getFullYear()).slice(-2);
-
-    const inicio =
-        new Date(
-            hoy.getFullYear(),
-            0,
-            0
-        );
-
-    const juliano =
-        String(
-            Math.floor(
-                (hoy - inicio) / 86400000
-            )
-        ).padStart(3,"0");
-
-    const clave =
-        `SGP-${yy}${juliano}`;
-
-    const datos =
-        JSON.parse(
-            localStorage.getItem(
-                "sgp_consecutivos"
-            ) || "{}"
-        );
-
-    if(!datos[clave])
-        datos[clave] = 0;
-
-    datos[clave]++;
-
-    consecutivoReservado =
-        datos[clave];
-
-    localStorage.setItem(
-        "sgp_consecutivos",
-        JSON.stringify(datos)
-    );
-
     console.log(
         "================================="
     );
 
     console.log(
-        "CONSECUTIVO RESERVADO"
+        "[CONSECUTIVO] reservarConsecutivo()"
     );
 
     console.log(
-        "Clave del día:",
-        clave
-    );
-
-    console.log(
-        "Número:",
+        "[CONSECUTIVO] Estado actual:",
         consecutivoReservado
+    );
+
+    /*
+     * Si ya existe uno reservado,
+     * NO generamos otro.
+     */
+    if(
+        consecutivoReservado !== null &&
+        consecutivoReservado !== undefined
+    ){
+
+        console.log(
+            "[CONSECUTIVO] Ya existe uno reservado:",
+            consecutivoReservado
+        );
+
+        console.log(
+            "[CONSECUTIVO] Código:",
+            obtenerCodigoReclamo()
+        );
+
+        console.log(
+            "================================="
+        );
+
+        return consecutivoReservado;
+    }
+
+    /*
+     * Solamente aquí se genera
+     * el consecutivo inicial.
+     */
+    const nuevo =
+        siguienteConsecutivo();
+
+    consecutivoReservado =
+        nuevo;
+
+    console.log(
+        "[CONSECUTIVO] Reservado:",
+        consecutivoReservado
+    );
+
+    console.log(
+        "[CONSECUTIVO] Código:",
+        obtenerCodigoReclamo()
     );
 
     console.log(
@@ -319,8 +315,43 @@ function reservarConsecutivo(){
     );
 
     return consecutivoReservado;
-
 }
+
+//               </gishikoDev_>
+function reservarSiguienteConsecutivo(){
+
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "[CONSECUTIVO] RESERVANDO SIGUIENTE"
+    );
+
+    /*
+     * Toda la responsabilidad de incrementar
+     * está centralizada en siguienteConsecutivo().
+     */
+    const nuevo =
+        siguienteConsecutivo();
+
+    console.log(
+        "[CONSECUTIVO] Nuevo consecutivo:",
+        nuevo
+    );
+
+    console.log(
+        "[CONSECUTIVO] Nuevo código:",
+        obtenerCodigoReclamo()
+    );
+
+    console.log(
+        "================================="
+    );
+
+    return nuevo;
+}
+
 
 //               </gishikoDev_>
 // Asignacion de siguiente codigo consecutivo incremental disponible caso colision de codigo en DB
@@ -344,7 +375,7 @@ function siguienteConsecutivo(){
             Math.floor(
                 (hoy - inicio) / 86400000
             )
-        ).padStart(3,"0");
+        ).padStart(3, "0");
 
     const clave =
         `SGP-${yy}${juliano}`;
@@ -356,9 +387,14 @@ function siguienteConsecutivo(){
             ) || "{}"
         );
 
-    if(!datos[clave])
+    if(!datos[clave]){
         datos[clave] = 0;
+    }
 
+    /*
+     * ESTA ES LA ÚNICA LÍNEA QUE
+     * INCREMENTA EL CONSECUTIVO.
+     */
     datos[clave]++;
 
     consecutivoReservado =
@@ -374,21 +410,26 @@ function siguienteConsecutivo(){
     );
 
     console.log(
-        "NUEVO CONSECUTIVO POR COLISIÓN"
+        "[CONSECUTIVO] NUEVO CONSECUTIVO"
     );
 
     console.log(
-        "Clave del día:",
+        "[CONSECUTIVO] Clave:",
         clave
     );
 
     console.log(
-        "Nuevo número:",
+        "[CONSECUTIVO] Número:",
         consecutivoReservado
     );
 
     console.log(
-        "Nuevo código:",
+        "[CONSECUTIVO] Servicio:",
+        wizard.servicio
+    );
+
+    console.log(
+        "[CONSECUTIVO] Código:",
         obtenerCodigoReclamo()
     );
 
@@ -397,6 +438,84 @@ function siguienteConsecutivo(){
     );
 
     return consecutivoReservado;
+}
+
+function prepararNuevoReclamo(){
+
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "[WIZARD] PREPARANDO NUEVO RECLAMO"
+    );
+
+    console.log(
+        "[WIZARD] Consecutivo anterior:",
+        consecutivoReservado
+    );
+
+    /*
+     * Invalidamos únicamente el consecutivo
+     * del reclamo anterior.
+     */
+    consecutivoReservado = null;
+
+    console.log(
+        "[WIZARD] Consecutivo anterior invalidado."
+    );
+
+    /*
+     * Reservamos EXACTAMENTE UN nuevo
+     * consecutivo para este nuevo wizard.
+     */
+    reservarConsecutivo();
+
+    console.log(
+        "[WIZARD] Nuevo consecutivo:",
+        consecutivoReservado
+    );
+
+    console.log(
+        "[WIZARD] Nuevo código:",
+        obtenerCodigoReclamo()
+    );
+
+    console.log(
+        "================================="
+    );
+
+    return consecutivoReservado;
+}
+
+
+
+function obtenerJuliano(){
+
+    const hoy = new Date();
+
+    const inicio =
+        new Date(
+            hoy.getFullYear(),
+            0,
+            0
+        );
+
+    const dias =
+        Math.floor(
+            (hoy - inicio) / 86400000
+        );
+
+    const anio =
+        String(
+            hoy.getFullYear()
+        ).slice(-2);
+
+    const juliano =
+        String(dias)
+            .padStart(3,"0");
+
+    return anio + juliano;
 }
 
 function obtenerJuliano(){
@@ -423,6 +542,16 @@ function obtenerJuliano(){
     return anio + juliano;
 
 }
+
+
+// ==========================================================
+// CONTROL DEL ENVÍO
+// Evita múltiples envíos simultáneos desde el mismo wizard.
+// ==========================================================
+
+let envioEnCurso = false;
+let reclamoCreadoId = null;
+let codigoEnvioActual = null;
 
 
 /* ================= WIZARD ================= */
@@ -573,35 +702,22 @@ function selServicio(codigo){
 // Funcion fundido de codigo <<--</gishikoDev_>-->>
 function obtenerCodigoReclamo(){
 
-    const hoy = new Date();
+    const codigo =
+        `SGP-${obtenerJuliano()}-${
+            String(consecutivoReservado)
+                .padStart(4,"0")
+        }-${wizard.servicio}`;
 
-    const yy = String(
-        hoy.getFullYear()
-    ).slice(-2);
-
-    const inicio = new Date(
-        hoy.getFullYear(),
-        0,
-        0
+    console.log(
+        "[CODIGO] obtenerCodigoReclamo():",
+        codigo,
+        "| consecutivoReservado:",
+        consecutivoReservado,
+        "| servicio:",
+        wizard.servicio
     );
 
-    const juliano = String(
-        Math.floor(
-            (hoy - inicio) / 86400000
-        )
-    ).padStart(3,"0");
-
-    return `SGP-${
-        yy
-    }${
-        juliano
-    }-${
-        String(consecutivoReservado)
-            .padStart(4,"0")
-    }-${
-        wizard.servicio
-    }`;
-
+    return codigo;
 }
 
 function obtenerResumenReclamo(){
@@ -1173,42 +1289,119 @@ console.log($("ticket-reclamo"));
 
 async function pasoWizard(dir){
 
-    const p = wizard.paso;
+    const p =
+        wizard.paso;
 
-    if(dir>0 && !validarPaso(p))
-        return;
+    /*
+     * =========================================
+     * VALIDACIÓN DEL PASO
+     * =========================================
+     */
+
     if(
-        dir>0 &&
-        p===1 &&
-        !consecutivoReservado
+        dir > 0 &&
+        !validarPaso(p)
     ){
-        reservarConsecutivo();
-        console.log(
-            "Consecutivo reservado:",
-            consecutivoReservado
-        );
-    }
-    if(dir>0 && p===5){
-        enviarReclamo();
         return;
     }
-    wizard.paso = Math.max(
-        0,
-        Math.min(5,p+dir)
-    );
+
+
+    /*
+     * =========================================
+     * PASO 1 → 2
+     *
+     * Solo reservamos si NO existe
+     * un consecutivo previamente reservado.
+     * =========================================
+     */
+
+    if(
+        dir > 0 &&
+        p === 1
+    ){
+
+        if(
+            consecutivoReservado === null ||
+            consecutivoReservado === undefined
+        ){
+
+            reservarConsecutivo();
+
+            console.log(
+                "[WIZARD] Consecutivo reservado:",
+                consecutivoReservado
+            );
+
+        }
+        else{
+
+            console.log(
+                "[WIZARD] Consecutivo ya reservado:",
+                consecutivoReservado
+            );
+
+        }
+
+    }
+
+
+    /*
+     * =========================================
+     * PASO 5 → ENVÍO
+     * =========================================
+     */
+
+    if(
+        dir > 0 &&
+        p === 5
+    ){
+
+        await enviarReclamo();
+
+        return;
+
+    }
+
+
+    /*
+     * =========================================
+     * CAMBIO DE PASO
+     * =========================================
+     */
+
+    wizard.paso =
+        Math.max(
+            0,
+            Math.min(
+                5,
+                p + dir
+            )
+        );
+
+
     refrescarWizard();
 
-setTimeout(() => {
 
-    window.scrollTo({
+    /*
+     * =========================================
+     * SCROLL
+     * =========================================
+     */
 
-        top: 0,
+    setTimeout(
+        () => {
 
-        behavior: "smooth"
+            window.scrollTo({
 
-    });
+                top: 0,
 
-}, 50);
+                behavior: "smooth"
+
+            });
+
+        },
+        50
+    );
 
 }
 
@@ -1253,21 +1446,85 @@ function cargarDocW(i,input,maxMB,multi){
 
 window.cargarDocW = cargarDocW;
 
+
+function errorTransitorio(error){
+
+    if(!error)
+        return false;
+
+    const mensaje = String(
+        error.message ||
+        error.error_description ||
+        error.details ||
+        error
+    ).toLowerCase();
+
+    // ======================================================
+    // ERRORES DE RED / CONEXIÓN
+    // ======================================================
+
+    if(
+        mensaje.includes("network") ||
+        mensaje.includes("fetch") ||
+        mensaje.includes("timeout") ||
+        mensaje.includes("failed to fetch") ||
+        mensaje.includes("connection") ||
+        mensaje.includes("aborted") ||
+        mensaje.includes("offline")
+    ){
+
+        return true;
+
+    }
+
+    // ======================================================
+    // HTTP / SUPABASE TRANSITORIOS
+    // ======================================================
+
+    if(
+        error.status === 408 ||
+        error.status === 429 ||
+        error.status === 500 ||
+        error.status === 502 ||
+        error.status === 503 ||
+        error.status === 504
+    ){
+
+        return true;
+
+    }
+
+    return false;
+}
+
+function esperar(ms){
+
+    return new Promise(
+        resolve => setTimeout(resolve, ms)
+    );
+
+}
+
+
+
 //                <<--- </gishikoDev_> --->>
 async function enviarReclamo(){
 
-    console.log("[FIREFOX TEST] enviarReclamo() INICIO");
-
     console.clear();
 
-    console.log("===================================");
-    console.log("INICIANDO ENVÍO DEL RECLAMO");
-    console.log("===================================");
+    console.log(
+        "==================================="
+    );
+
+    console.log(
+        "INICIANDO ENVÍO DEL RECLAMO"
+    );
+
+    console.log(
+        "==================================="
+    );
 
     mostrarProgresoEnvio();
-
-    let nuevoReclamo = null;
-    let reclamoCreado = false;
 
     try{
 
@@ -1276,21 +1533,34 @@ async function enviarReclamo(){
             "Preparando los datos del reclamo..."
         );
 
+        /*
+         * =========================================
+         * CÓDIGO INICIAL
+         * =========================================
+         *
+         * Se obtiene UNA sola vez para este intento.
+         */
         let codigo =
             obtenerCodigoReclamo();
 
         console.log(
-            "Código inicial:",
+            "[ENVÍO] Código inicial:",
             codigo
         );
 
-        // ==========================================
-        // CONSTRUCCIÓN DEL RECLAMO
-        // ==========================================
+        console.log(
+            "[ENVÍO] Consecutivo:",
+            consecutivoReservado
+        );
 
-        const reclamo = {
 
-            num: codigo,
+        /*
+         * =========================================
+         * CONSTRUCCIÓN DEL RECLAMO
+         * =========================================
+         */
+
+        const reclamoBase = {
 
             linea:
                 wizard.tipo,
@@ -1360,186 +1630,181 @@ async function enviarReclamo(){
 
             creado_por:
                 "Portal"
-
         };
-
-        console.log(
-            "RECLAMO A INSERTAR"
-        );
-
-        console.log(
-            reclamo
-        );
-
-
-        // ==========================================
-        // PASO 1
-        // CREAR RECLAMO
-        // ==========================================
-
-        actualizarProgresoEnvio(
-            20,
-            "Registrando su reclamo..."
-        );
-
-        console.log(
-            "1. Creando reclamo..."
-        );
 
 
         /*
-         * Intentamos crear el reclamo.
+         * =========================================
+         * RETRY
+         * =========================================
          *
-         * Si existe una colisión de consecutivo,
-         * generamos automáticamente el siguiente
-         * número y volvemos a intentar.
+         * El número máximo de intentos es 8.
+         *
+         * Cada colisión consume exactamente
+         * un nuevo consecutivo.
          */
 
-        const MAX_REINTENTOS = 100;
+        const MAX_INTENTOS = 100;
+
+        let nuevoReclamo = null;
+
+        let cantidadDocumentos = 0;
+
+        let envioRealizado = false;
+
 
         for(
             let intento = 1;
-            intento <= MAX_REINTENTOS;
+            intento <= MAX_INTENTOS;
             intento++
         ){
 
+            console.log(
+                "==================================="
+            );
+
+            console.log(
+                `[ENVÍO] Intento ${intento}/${MAX_INTENTOS}`
+            );
+
+            console.log(
+                "[ENVÍO] Consecutivo actual:",
+                consecutivoReservado
+            );
+
+
+            /*
+             * =====================================
+             * ACTUALIZAR CÓDIGO
+             * =====================================
+             */
+
+            codigo =
+                obtenerCodigoReclamo();
+
+            console.log(
+                "[ENVÍO] Código del intento:",
+                codigo
+            );
+
+
+            /*
+             * =====================================
+             * OBJETO FINAL
+             * =====================================
+             */
+
+            const reclamo = {
+
+                ...reclamoBase,
+
+                num:
+                    codigo
+
+            };
+
+
+            console.log(
+                "[ENVÍO] RECLAMO A INSERTAR:"
+            );
+
+            console.log(
+                reclamo
+            );
+
+
             try{
 
-                console.log(
-                    "-----------------------------------"
+                /*
+                 * =================================
+                 * PASO 1
+                 * CREAR RECLAMO
+                 * =================================
+                 */
+
+                actualizarProgresoEnvio(
+                    20,
+                    intento === 1
+                        ? "Registrando su reclamo..."
+                        : "Asignando un nuevo código de reclamo..."
                 );
 
                 console.log(
-                    "INTENTO DE INSERT:",
-                    intento
+                    "[ENVÍO] Creando reclamo:",
+                    codigo
                 );
 
-                console.log(
-                    "Código:",
-                    reclamo.num
-                );
 
                 nuevoReclamo =
                     await ReclamosRepository.crear(
                         reclamo
                     );
 
-                reclamoCreado = true;
 
                 console.log(
-                    "[FIREFOX TEST] CREAR OK"
+                    "[ENVÍO] Reclamo creado correctamente."
                 );
 
                 console.log(
-                    "Reclamo creado:",
                     nuevoReclamo
                 );
 
-                break;
 
-            }
-            catch(error){
+                /*
+                 * =================================
+                 * SI LLEGAMOS AQUÍ,
+                 * EL INSERT FUE EXITOSO
+                 * =================================
+                 */
 
-                console.error(
-                    "ERROR CREANDO RECLAMO"
-                );
-
-                console.error(
-                    error
-                );
-
-                console.error(
-                    "Código que produjo el error:",
-                    reclamo.num
-                );
+                envioRealizado =
+                    true;
 
 
-                // ==================================
-                // COLISIÓN DE CONSECUTIVO
-                // ==================================
-
-                const esColision =
-                    error?.code === "23505" &&
-                    (
-                        error?.message || ""
-                    ).includes(
-                        "reclamos_num_key"
-                    );
-
-                if(!esColision){
-
-                    console.error(
-                        "El error NO corresponde a una colisión."
-                    );
-
-                    throw error;
-
-                }
-
-
-                console.warn(
-                    "⚠️ COLISIÓN DE CONSECUTIVO"
-                );
-
-                console.warn(
-                    "El código",
-                    reclamo.num,
-                    "ya existe."
-                );
-
-
-                if(
-                    intento >= MAX_REINTENTOS
-                ){
-
-                    console.error(
-                        "Se agotaron los reintentos."
-                    );
-
-                    throw error;
-
-                }
-
+                /*
+                 * =================================
+                 * DOCUMENTOS
+                 * =================================
+                 */
 
                 actualizarProgresoEnvio(
-                    22 + (intento * 2),
-                    "Ajustando el número de reclamo..."
+                    40,
+                    "Cargando los documentos..."
+                );
+
+                console.log(
+                    "[ENVÍO] Subiendo documentos..."
                 );
 
 
-                /*
-                 * Generamos automáticamente
-                 * el siguiente consecutivo.
-                 */
-
-                siguienteConsecutivo();
-
-
-                /*
-                 * MUY IMPORTANTE:
-                 *
-                 * Actualizamos el objeto que será
-                 * enviado al INSERT.
-                 */
-
-                codigo =
-                    obtenerCodigoReclamo();
-
-                reclamo.num =
-                    codigo;
+                cantidadDocumentos =
+                    await subirDocumentosReclamo(
+                        nuevoReclamo.id
+                    );
 
 
                 console.log(
-                    "Nuevo código para retry:",
-                    codigo
+                    "[ENVÍO] Documentos:",
+                    cantidadDocumentos
                 );
 
 
                 /*
-                 * Pequeña pausa para permitir que
-                 * Firefox/Android/iOS actualicen
-                 * visualmente el progress.
+                 * =================================
+                 * VERIFICACIÓN
+                 * =================================
                  */
+
+                actualizarProgresoEnvio(
+                    65,
+                    "Verificando la información registrada..."
+                );
+
+
+                console.log(
+                    "[ENVÍO] Verificando reclamo..."
+                );
+
 
                 await new Promise(
                     resolve =>
@@ -1548,325 +1813,284 @@ async function enviarReclamo(){
                         )
                 );
 
+
+                const verificacion =
+                    await ReclamosRepository.buscar(
+                        codigo
+                    );
+
+
+                console.log(
+                    "[ENVÍO] Resultado verificación:",
+                    verificacion
+                );
+
+
+                if(!verificacion){
+
+                    throw new Error(
+                        "No fue posible verificar el reclamo."
+                    );
+
+                }
+
+
+                if(
+                    verificacion.num !== codigo
+                ){
+
+                    throw new Error(
+                        "La verificación del reclamo falló."
+                    );
+
+                }
+
+
+                /*
+                 * =================================
+                 * VERIFICACIÓN OK
+                 * =================================
+                 */
+
+                console.log(
+                    "[ENVÍO] Verificación correcta."
+                );
+
+
+                /*
+                 * =================================
+                 * CONFIRMACIÓN
+                 * =================================
+                 */
+
+                actualizarProgresoEnvio(
+                    82,
+                    "Confirmando la recepción..."
+                );
+
+
+                $('radicado-num')
+                    .textContent =
+                    codigo;
+
+
+                /*
+                 * =================================
+                 * PANTALLA FINAL
+                 * =================================
+                 */
+
+                actualizarProgresoEnvio(
+                    95,
+                    "Preparando la confirmación..."
+                );
+
+
+                document
+                    .querySelectorAll(".wstep")
+                    .forEach(w=>{
+
+                        w.classList.toggle(
+                            "hidden",
+                            w.dataset.paso !== "6"
+                        );
+
+                    });
+
+
+                /*
+                 * =================================
+                 * STEPPER
+                 * =================================
+                 */
+
+                document
+                    .querySelectorAll(
+                        "#stepper .st"
+                    )
+                    .forEach(s=>{
+
+                        s.classList.add(
+                            "hecho"
+                        );
+
+                        s.classList.remove(
+                            "actual"
+                        );
+
+                    });
+
+
+                /*
+                 * =================================
+                 * NAVEGACIÓN
+                 * =================================
+                 */
+
+                $('nav-wizard')
+                    .classList.add(
+                        "hidden"
+                    );
+
+
+                /*
+                 * =================================
+                 * COMPLETADO
+                 * =================================
+                 */
+
+                actualizarProgresoEnvio(
+                    100,
+                    "¡Reclamo enviado correctamente!"
+                );
+
+
+                await new Promise(
+                    resolve =>
+                        setTimeout(
+                            resolve,
+                            700
+                        )
+                );
+
+
+                ocultarProgresoEnvio();
+
+
+                toast(
+                    "Reclamo " +
+                    codigo +
+                    " enviado con éxito"
+                );
+
+
+                console.log(
+                    "==================================="
+                );
+
+                console.log(
+                    "[ENVÍO] FLUJO TERMINADO CORRECTAMENTE"
+                );
+
+                console.log(
+                    "Código final:",
+                    codigo
+                );
+
+                console.log(
+                    "==================================="
+                );
+
+
+                return;
+
+            }
+            catch(error){
+
+                /*
+                 * =================================
+                 * ERROR DEL INTENTO
+                 * =================================
+                 */
+
+                console.error(
+                    `[ENVÍO] Error intento ${intento}:`,
+                    error
+                );
+
+
+                /*
+                 * =================================
+                 * COLISIÓN DE CONSECUTIVO
+                 * =================================
+                 */
+
+                const esColision =
+                    error?.code === "23505" ||
+                    error?.message?.includes(
+                        "reclamos_num_key"
+                    );
+
+
+                if(esColision){
+
+                    console.warn(
+                        "[ENVÍO] COLISIÓN DE CONSECUTIVO"
+                    );
+
+
+                    /*
+                     * Si todavía quedan intentos,
+                     * reservamos exactamente UN
+                     * nuevo consecutivo.
+                     */
+
+                    if(
+                        intento < MAX_INTENTOS
+                    ){
+
+                        reservarSiguienteConsecutivo();
+
+
+                        console.warn(
+                            "[ENVÍO] Nuevo consecutivo:",
+                            consecutivoReservado
+                        );
+
+
+                        console.warn(
+                            "[ENVÍO] Nuevo código:",
+                            obtenerCodigoReclamo()
+                        );
+
+
+                        actualizarProgresoEnvio(
+                            30,
+                            "El código estaba ocupado. Generando uno nuevo..."
+                        );
+
+
+                        /*
+                         * IMPORTANTE:
+                         *
+                         * Continuamos el FOR.
+                         *
+                         * NO hacemos otro incremento aquí.
+                         */
+
+                        continue;
+
+                    }
+
+                }
+
+
+                /*
+                 * =================================
+                 * ERROR DEFINITIVO
+                 * =================================
+                 */
+
+                throw error;
+
             }
 
         }
 
 
-        if(!reclamoCreado){
-
-            throw new Error(
-                "No fue posible crear el reclamo."
-            );
-
-        }
-
-
-        console.log(
-            "OK 1"
-        );
-
-        console.log(
-            nuevoReclamo
-        );
-
-
-        // ==========================================
-        // PASO 2
-        // DOCUMENTOS
-        // ==========================================
-
-        actualizarProgresoEnvio(
-            40,
-            "Cargando los documentos..."
-        );
-
-        console.log(
-            "2. Subiendo documentos..."
-        );
-
-        const cantidadDocumentos =
-            await subirDocumentosReclamo(
-                nuevoReclamo.id
-            );
-
-        console.log(
-            "[FIREFOX TEST] DOCUMENTOS OK"
-        );
-
-        console.log(
-            "OK 2"
-        );
-
-        console.log(
-            "Documentos:",
-            cantidadDocumentos
-        );
-
-
-        // ==========================================
-        // PASO 3
-        // VERIFICACIÓN
-        // ==========================================
-
-        actualizarProgresoEnvio(
-            65,
-            "Verificando la información registrada..."
-        );
-
-        console.log(
-            "3. Verificando reclamo..."
-        );
-
-
-        await new Promise(
-            resolve =>
-                requestAnimationFrame(
-                    resolve
-                )
-        );
-
-
-        const verificacion =
-            await ReclamosRepository.buscar(
-                codigo
-            );
-
-        console.log(
-            "[FIREFOX TEST] BUSQUEDA OK"
-        );
-
-        console.log(
-            "OK 3"
-        );
-
-        console.log(
-            verificacion
-        );
-
-
-        // ==========================================
-        // VERIFICACIÓN FALLIDA
-        // ==========================================
-
-        if(!verificacion){
-
-            console.error(
-                "No fue posible verificar el reclamo."
-            );
-
-            actualizarProgresoEnvio(
-                100,
-                "No fue posible verificar la solicitud."
-            );
-
-            setTimeout(
-                ocultarProgresoEnvio,
-                800
-            );
-
-            toast(
-                "No fue posible verificar el reclamo."
-            );
-
-            return;
-
-        }
-
-
-        if(
-            verificacion.num !== codigo
-        ){
-
-            console.error(
-                "La verificación del reclamo falló."
-            );
-
-            actualizarProgresoEnvio(
-                100,
-                "La verificación no pudo completarse."
-            );
-
-            setTimeout(
-                ocultarProgresoEnvio,
-                800
-            );
-
-            toast(
-                "La verificación del reclamo falló."
-            );
-
-            return;
-
-        }
-
-
-        // ==========================================
-        // PASO 4
-        // CONFIRMACIÓN
-        // ==========================================
-
-        actualizarProgresoEnvio(
-            82,
-            "Confirmando la recepción..."
-        );
-
-        console.log(
-            "4. Pintando código..."
-        );
-
-
         /*
-         * Aquí utilizamos `codigo`, que ya contiene
-         * el nuevo consecutivo en caso de collision.
+         * Si llegamos aquí, agotamos
+         * todos los intentos.
          */
 
-        $('radicado-num')
-            .textContent =
-            codigo;
+        if(!envioRealizado){
 
-
-        console.log(
-            "Código final:",
-            codigo
-        );
-
-        console.log(
-            "OK 4"
-        );
-
-
-        // ==========================================
-        // PASO 5
-        // PANTALLA FINAL
-        // ==========================================
-
-        actualizarProgresoEnvio(
-            95,
-            "Preparando la confirmación..."
-        );
-
-        console.log(
-            "5. Cambiando a pantalla de éxito..."
-        );
-
-
-        document
-            .querySelectorAll(".wstep")
-            .forEach(w=>{
-
-                w.classList.toggle(
-                    "hidden",
-                    w.dataset.paso !== "6"
-                );
-
-            });
-
-
-        console.log(
-            "OK 5"
-        );
-
-
-        // ==========================================
-        // STEPPER
-        // ==========================================
-
-        console.log(
-            "6. Pintando stepper..."
-        );
-
-        document
-            .querySelectorAll(
-                "#stepper .st"
-            )
-            .forEach(s=>{
-
-                s.classList.add(
-                    "hecho"
-                );
-
-                s.classList.remove(
-                    "actual"
-                );
-
-            });
-
-
-        console.log(
-            "OK 6"
-        );
-
-
-        // ==========================================
-        // NAVEGACIÓN
-        // ==========================================
-
-        console.log(
-            "7. Ocultando navegación..."
-        );
-
-        $('nav-wizard')
-            .classList.add(
-                "hidden"
+            throw new Error(
+                "No fue posible registrar el reclamo después de varios intentos."
             );
 
+        }
 
-        console.log(
-            "OK 7"
-        );
-
-
-        // ==========================================
-        // COMPLETADO
-        // ==========================================
-
-        actualizarProgresoEnvio(
-            100,
-            "¡Reclamo enviado correctamente!"
-        );
-
-
-        console.log(
-            "8. Flujo completado."
-        );
-
-
-        await new Promise(
-            resolve =>
-                setTimeout(
-                    resolve,
-                    700
-                )
-        );
-
-
-        ocultarProgresoEnvio();
-
-
-        toast(
-            "Reclamo " +
-            codigo +
-            " enviado con éxito"
-        );
-
-
-        console.log(
-            "==================================="
-        );
-
-        console.log(
-            "FLUJO TERMINADO CORRECTAMENTE"
-        );
-
-        console.log(
-            "Código final:",
-            codigo
-        );
-
-        console.log(
-            "==================================="
-        );
 
     }
     catch(error){
@@ -1909,11 +2133,6 @@ async function enviarReclamo(){
         );
 
     }
-
-
-    console.log(
-        "[FIREFOX TEST] FIN REAL DE enviarReclamo()"
-    );
 
 }
 
@@ -2052,63 +2271,125 @@ $('err-servicio').style.display='none';
 
 function reiniciarWizard(){
 
-    wizard = {
-        paso:0,
-        perfil:null,
-        tipo:null,
-        servicio:null,
-        codigo:null,
-        archivos:{}
-    };
+console.log(
+    "================================="
+);
 
-    consecutivoReservado = null;
+console.log(
+    "[WIZARD] REINICIANDO WIZARD"
+);
 
-    [
-        'f-nombre',
-        'f-cedula',
-        'f-poliza',
-        'f-tel',
-        'f-email',
-        'f-hospital',
-        'f-corredora',
-        'f-fecha',
-        'f-monto',
-        'f-proveedor',
-        'f-desc'
-    ].forEach(id=>$(id).value='');
+/*
+ * prepararNuevoReclamo()
+ * ya invalida el consecutivo anterior
+ * y reserva EXACTAMENTE uno nuevo.
+ *
+ * NO volver a poner consecutivoReservado
+ * en null después de esta llamada.
+ */
+prepararNuevoReclamo();
 
-    $('f-consent').checked=false;
-    $('f-sinmonto').checked=false;
-    $('f-monto').disabled=false;
+wizard = {
+    paso: 0,
+    perfil: null,
+    tipo: null,
+    servicio: null,
+    codigo: null,
+    archivos: {}
+};
 
-    $('f-producto').innerHTML =
-        '<option value="">Seleccione la línea primero…</option>';
+/*
+ * IMPORTANTE:
+ *
+ * NO hacer:
+ *
+ * consecutivoReservado = null;
+ *
+ * porque prepararNuevoReclamo() acaba
+ * de reservar el nuevo consecutivo.
+ */
 
-    document
-        .querySelectorAll('input[name="servicio"]')
-        .forEach(r=>r.checked=false);
+[
+    'f-nombre',
+    'f-cedula',
+    'f-poliza',
+    'f-tel',
+    'f-email',
+    'f-hospital',
+    'f-corredora',
+    'f-fecha',
+    'f-monto',
+    'f-proveedor',
+    'f-desc'
+].forEach(id => {
 
-    document
-        .querySelectorAll('.servicio-card')
-        .forEach(c=>c.classList.remove('sel'));
+    const elemento = $(id);
 
-    document
-        .querySelectorAll('.campo')
-        .forEach(c=>c.classList.remove('invalido'));
+    if(elemento){
+        elemento.value = '';
+    }
 
-    $('err-servicio').style.display='none';
-    $('err-tipo').style.display='none';
-    $('err-perfil').style.display='none';
+});
 
-    $('nav-wizard').classList.remove('hidden');
+$('f-consent').checked = false;
+$('f-sinmonto').checked = false;
+$('f-monto').disabled = false;
 
-    pintarPerfiles();
-    pintarTipos();
-    pintarDocs();
+$('f-producto').innerHTML =
+    '<option value="">Seleccione la línea primero…</option>';
 
-    refrescarWizard();
+document
+    .querySelectorAll('input[name="servicio"]')
+    .forEach(r => {
+
+        r.checked = false;
+
+    });
+
+document
+    .querySelectorAll('.servicio-card')
+    .forEach(c => {
+
+        c.classList.remove('sel');
+
+    });
+
+document
+    .querySelectorAll('.campo')
+    .forEach(c => {
+
+        c.classList.remove('invalido');
+
+    });
+
+$('err-servicio').style.display = 'none';
+$('err-tipo').style.display = 'none';
+$('err-perfil').style.display = 'none';
+
+$('nav-wizard').classList.remove('hidden');
+
+pintarPerfiles();
+pintarTipos();
+pintarDocs();
+
+refrescarWizard();
+
+console.log(
+    "[WIZARD] Consecutivo activo:",
+    consecutivoReservado
+);
+
+console.log(
+    "[WIZARD] Código activo:",
+    obtenerCodigoReclamo()
+);
+
+console.log(
+    "================================="
+);
 
 }
+
 
 
 // ==========================================

@@ -43,7 +43,7 @@ label{display:block;font-size:13px;font-weight:600;color:var(--profundo);margin-
 .header-pub .onda{position:absolute;right:-120px;top:-90px;width:560px;opacity:.10;pointer-events:none}
 .nav{max-width:1120px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;z-index:2}
 .nav img{height:44px}
-.hero{max-width:1120px;margin:0 auto;padding:40px 24px 76px;position:relative;z-index:2;text-align:center}
+.hero{max-width:1120px;margin:0 auto;padding:40px 24px 76px;position:relative;z-index:2;text-align:center;}
 .hero .kicker{font-family:var(--mono);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--verde);margin-bottom:12px}
 .hero h1{color:#fff;font-size:clamp(30px,5vw,48px);font-weight:700}
 .hero p{margin:14px auto 0;max-width:520px;color:#D7E9F3;font-size:16.5px}
@@ -53,7 +53,7 @@ label{display:block;font-size:13px;font-weight:600;color:var(--profundo);margin-
 .card-acc:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(14,58,93,.16)}
 .chip-esp{background:#E3EDF3;color:#0E3A5D;border:none;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer}
 .chip-esp:hover,.chip-esp.on{background:#00B6F0;color:#fff}
-.banner-car{max-width:1120px;margin:0 auto 26px;padding:0 24px}
+.banner-car{max-width:1120px;margin:0 auto 26px;padding:24px 24px}
 .banner-slide{background:linear-gradient(135deg,#00B6F0,#0E3A5D);color:#fff;border-radius:16px;padding:26px 30px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;min-height:120px;box-shadow:var(--sombra)}
 .banner-slide h3{color:#fff;font-size:22px;margin-bottom:6px}
 .banner-dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
