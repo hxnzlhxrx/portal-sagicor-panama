@@ -1395,7 +1395,7 @@ async function enviarReclamo(){
          * número y volvemos a intentar.
          */
 
-        const MAX_REINTENTOS = 10;
+        const MAX_REINTENTOS = 100;
 
         for(
             let intento = 1;
