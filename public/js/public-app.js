@@ -15,8 +15,8 @@ const PDFS = {
 // let SERVICIO_RECLAMO = '';
 
 const SERVICIOS = {
-  H: {
-    codigo: 'H',
+  M: {
+    codigo: 'M',
     nombre: 'Servicio Médico'
   },
   D: {
@@ -128,6 +128,12 @@ let wizard = {
     codigo:null,
     archivos:{}
 };
+
+// ======================================
+// Almacén persistente de documentos
+// ======================================
+
+let documentosReclamo = {};
 
 let consecutivoReservado = null;
               
@@ -250,7 +256,86 @@ function reservarConsecutivo(){
 
     const hoy = new Date();
 
-    const yy = String(hoy.getFullYear()).slice(-2);
+    const yy =
+        String(hoy.getFullYear()).slice(-2);
+
+    const inicio =
+        new Date(
+            hoy.getFullYear(),
+            0,
+            0
+        );
+
+    const juliano =
+        String(
+            Math.floor(
+                (hoy - inicio) / 86400000
+            )
+        ).padStart(3,"0");
+
+    const clave =
+        `SGP-${yy}${juliano}`;
+
+    const datos =
+        JSON.parse(
+            localStorage.getItem(
+                "sgp_consecutivos"
+            ) || "{}"
+        );
+
+    if(!datos[clave])
+        datos[clave] = 0;
+
+    datos[clave]++;
+
+    consecutivoReservado =
+        datos[clave];
+
+    localStorage.setItem(
+        "sgp_consecutivos",
+        JSON.stringify(datos)
+    );
+
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "CONSECUTIVO RESERVADO"
+    );
+
+    console.log(
+        "Clave del día:",
+        clave
+    );
+
+    console.log(
+        "Número:",
+        consecutivoReservado
+    );
+
+    console.log(
+        "================================="
+    );
+
+    return consecutivoReservado;
+
+}
+
+//               </gishikoDev_>
+// Asignacion de siguiente codigo consecutivo incremental disponible caso colision de codigo en DB
+ 
+function siguienteConsecutivo(){
+
+    console.log("===================================");
+    console.log("RESERVANDO SIGUIENTE CONSECUTIVO");
+    console.log("===================================");
+
+    const hoy = new Date();
+
+    const yy = String(
+        hoy.getFullYear()
+    ).slice(-2);
 
     const inicio = new Date(
         hoy.getFullYear(),
@@ -264,22 +349,42 @@ function reservarConsecutivo(){
         )
     ).padStart(3,"0");
 
-    const clave = `SGP-${yy}${juliano}`;
+    const clave =
+        `SGP-${yy}${juliano}`;
 
-    const datos = JSON.parse(
-        localStorage.getItem("sgp_consecutivos") || "{}"
-    );
+    const datos =
+        JSON.parse(
+            localStorage.getItem(
+                "sgp_consecutivos"
+            ) || "{}"
+        );
 
     if(!datos[clave])
         datos[clave] = 0;
 
     datos[clave]++;
 
-    consecutivoReservado = datos[clave];
+    consecutivoReservado =
+        datos[clave];
 
     localStorage.setItem(
         "sgp_consecutivos",
         JSON.stringify(datos)
+    );
+
+    console.log(
+        "Nueva clave diaria:",
+        clave
+    );
+
+    console.log(
+        "Nuevo consecutivo:",
+        consecutivoReservado
+    );
+
+    console.log(
+        "Nuevo código:",
+        obtenerCodigoReclamo()
     );
 
     return consecutivoReservado;
@@ -319,11 +424,24 @@ function pintarPerfiles(){
       <div class="em">${p.em}</div><h4>${p.nombre}</h4><p>${p.desc}</p>
     </div>`).join('');
 }
+
+//                </gishikoDev_>
 function selPerfil(id){
-  wizard.perfil=id; $('err-perfil').style.display='none';
-  wizard.archivos={};
-  pintarPerfiles(); ajustarPorPerfil();
+
+    wizard.perfil = id;
+
+    $("err-perfil").style.display = "none";
+
+    documentosReclamo = {};
+
+    wizard.archivos = documentosReclamo;
+
+    pintarPerfiles();
+
+    ajustarPorPerfil();
+
 }
+
 function ajustarPorPerfil(){
   const p = wizard.perfil;
   $('w-intro').textContent = 'Tiempo estimado: 3–5 minutos. ' + (p==='hospital'
@@ -360,11 +478,27 @@ function pintarTipos(){
     </div>`).join('');
 }
 
+//                </gishikoDev_>
 function selTipo(id){
-  wizard.tipo=id; $('err-tipo').style.display='none';
-  wizard.archivos={};
-  $('f-producto').innerHTML = '<option value="">Seleccione…</option>' + PRODUCTOS[id].map(p=>`<option>${p}</option>`).join('');
-  pintarTipos(); pintarDocs();
+
+    wizard.tipo = id;
+
+    $("err-tipo").style.display = "none";
+
+    documentosReclamo = {};
+
+    wizard.archivos = documentosReclamo;
+
+    $("f-producto").innerHTML =
+        '<option value="">Seleccione…</option>' +
+        PRODUCTOS[id]
+            .map(p=>`<option>${p}</option>`)
+            .join("");
+
+    pintarTipos();
+
+    pintarDocs();
+
 }
 
 function selServicio(codigo){
@@ -477,7 +611,7 @@ function obtenerResumenReclamo(){
         producto: $('f-producto').value,
 
         servicio:{
-            H:"Servicio Médico",
+            M:"Servicio Médico",
             D:"Servicio Dental",
             V:"Servicio Óptico"
         }[wizard.servicio],
@@ -717,7 +851,7 @@ async function descargarTicketPDF(){
     fila(
         "Servicio",
         {
-            H:"Servicio Médico",
+            M:"Servicio Médico",
             D:"Servicio Dental",
             V:"Servicio Óptico"
         }[wizard.servicio]
@@ -829,14 +963,26 @@ Conserve este documento hasta la resolución definitiva del caso.`;
 }
 
 function pintarDocs(){
-  if(!wizard.tipo || !wizard.perfil) return;
-  pintarDoclist('doclist', DOCS[wizard.tipo][wizard.perfil], wizard.archivos, 'cargarDocW');
-}
-function cargarDocW(i,input,maxMB,multi){
 
-  console.log("cargarDocW()", i, input.files);
+    if(!wizard.tipo || !wizard.perfil)
+        return;
 
-  cargarGenerico(wizard.archivos, i, input, maxMB, multi, ()=>{ $('err-docs').style.display='none'; pintarDocs(); });
+    wizard.archivos = documentosReclamo;
+
+    pintarDoclist(
+
+        "doclist",
+
+        wizard._docsActivos ??
+
+        DOCS[wizard.tipo][wizard.perfil],
+
+        documentosReclamo,
+
+        "cargarDocW"
+
+    );
+
 }
 
 function marca(id,ok){ const c=$(id).closest('.campo'); if(c) c.classList.toggle('invalido',!ok); return ok; }
@@ -893,8 +1039,8 @@ function pintarResumen(){
 
     const r = obtenerResumenReclamo();
 
-    const nDocs = Object
-        .values(wizard.archivos)
+    const nDocs =
+    Object.values(documentosReclamo)
         .reduce(
             (s,a)=>s+a.length,
             0
@@ -975,7 +1121,7 @@ function actualizarTicketReclamo(){
 
     const servicio = {
 
-        H:"Servicio Médico",
+        M:"Servicio Médico",
 
         D:"Servicio Dental",
 
@@ -1069,6 +1215,36 @@ function refrescarWizard(){
   if(wizard.paso===5) pintarResumen();
 }
 
+function cargarDocW(i,input,maxMB,multi){
+
+    cargarGenerico(
+
+        documentosReclamo,
+
+        i,
+
+        input,
+
+        maxMB,
+
+        multi,
+
+        ()=>{
+
+            wizard.archivos = documentosReclamo;
+
+            $("err-docs").style.display = "none";
+
+            pintarDocs();
+
+        }
+
+    );
+
+}
+
+window.cargarDocW = cargarDocW;
+
 //                <<--- </gishikoDev_> --->>
 async function enviarReclamo(){
 
@@ -1078,124 +1254,299 @@ async function enviarReclamo(){
     console.log("INICIANDO ENVÍO DEL RECLAMO");
     console.log("===================================");
 
-    const codigo = obtenerCodigoReclamo();
-
-    const reclamo = {
-
-        num: codigo,
-
-        linea: wizard.tipo,
-
-        servicio: wizard.servicio,
-
-        producto: $('f-producto').value,
-
-        nombre: $('f-nombre').value.trim(),
-
-        cedula: $('f-cedula').value.trim(),
-
-        email: $('f-email').value.trim(),
-
-        tel: $('f-tel').value.trim(),
-
-        poliza: $('f-poliza')?.value.trim() || "",
-
-        perfil_presenta: wizard.perfil,
-
-        hospital:
-            wizard.perfil === "hospital"
-                ? $('f-hospital').value.trim()
-                : null,
-
-        corredora:
-            wizard.perfil === "corredor"
-                ? $('f-corredora')?.value.trim() || null
-                : null,
-
-        origen: "Portal Web",
-
-        fecha_evento: $('f-fecha').value,
-
-        monto:
-            $('f-sinmonto')?.checked
-                ? null
-                : (
-                    $('f-monto').value
-                        ? Number($('f-monto').value)
-                        : null
-                ),
-
-        proveedor: $('f-proveedor').value.trim(),
-
-        descripcion: $('f-desc').value.trim(),
-
-        estado: "Recibido",
-
-        docs_count: 0,
-
-        creado_por: "Portal"
-
-    };
-
-    console.log("RECLAMO A INSERTAR");
-    console.log(reclamo);
+    mostrarProgresoEnvio();
 
     try{
 
-        console.log("1. Creando reclamo...");
+        actualizarProgresoEnvio(
+            10,
+            "Preparando los datos del reclamo..."
+        );
+
+        const codigo =
+            obtenerCodigoReclamo();
+
+        console.log(
+            "Código inicial:",
+            codigo
+        );
+
+
+        // ==========================================
+        // CONSTRUCCIÓN DEL RECLAMO
+        // ==========================================
+
+        const reclamo = {
+
+            num: codigo,
+
+            linea: wizard.tipo,
+
+            servicio: wizard.servicio,
+
+            producto:
+                $('f-producto').value,
+
+            nombre:
+                $('f-nombre').value.trim(),
+
+            cedula:
+                $('f-cedula').value.trim(),
+
+            email:
+                $('f-email').value.trim(),
+
+            tel:
+                $('f-tel').value.trim(),
+
+            poliza:
+                $('f-poliza')?.value.trim() || "",
+
+            perfil_presenta:
+                wizard.perfil,
+
+            hospital:
+                wizard.perfil === "hospital"
+                    ? $('f-hospital').value.trim()
+                    : null,
+
+            corredora:
+                wizard.perfil === "corredor"
+                    ? $('f-corredora')?.value.trim() || null
+                    : null,
+
+            origen:
+                "Portal Web",
+
+            fecha_evento:
+                $('f-fecha').value,
+
+            monto:
+                $('f-sinmonto')?.checked
+                    ? null
+                    : (
+                        $('f-monto').value
+                            ? Number(
+                                $('f-monto').value
+                            )
+                            : null
+                    ),
+
+            proveedor:
+                $('f-proveedor').value.trim(),
+
+            descripcion:
+                $('f-desc').value.trim(),
+
+            estado:
+                "Recibido",
+
+            docs_count:
+                0,
+
+            creado_por:
+                "Portal"
+
+        };
+
+
+        console.log(
+            "RECLAMO A INSERTAR"
+        );
+
+        console.log(reclamo);
+
+
+        // ==========================================
+        // PASO 1
+        // CREAR RECLAMO
+        // ==========================================
+
+        actualizarProgresoEnvio(
+            20,
+            "Registrando su reclamo..."
+        );
+
+        console.log(
+            "1. Creando reclamo..."
+        );
 
         const nuevoReclamo =
-            await ReclamosRepository.crear(reclamo);
+            await ReclamosRepository.crear(
+                reclamo
+            );
 
-        console.log("OK 1");
-        console.log(nuevoReclamo);
+        console.log(
+            "OK 1"
+        );
 
-        console.log("2. Subiendo documentos...");
+        console.log(
+            nuevoReclamo
+        );
+
+
+        // ==========================================
+        // PASO 2
+        // DOCUMENTOS
+        // ==========================================
+
+        actualizarProgresoEnvio(
+            40,
+            "Cargando los documentos..."
+        );
+
+        console.log(
+            "2. Subiendo documentos..."
+        );
 
         const cantidadDocumentos =
             await subirDocumentosReclamo(
                 nuevoReclamo.id
             );
 
-        console.log("OK 2");
-        console.log("Documentos:", cantidadDocumentos);
+        console.log(
+            "OK 2"
+        );
 
-        console.log("3. Verificando reclamo...");
+        console.log(
+            "Documentos:",
+            cantidadDocumentos
+        );
+
+
+        // ==========================================
+        // PASO 3
+        // VERIFICACIÓN
+        // ==========================================
+
+        actualizarProgresoEnvio(
+            65,
+            "Verificando la información registrada..."
+        );
+
+        console.log(
+            "3. Verificando reclamo..."
+        );
+
+        /*
+         * Pequeña pausa visual.
+         *
+         * No modifica la lógica.
+         * Permite que el navegador pinte
+         * el estado antes de iniciar
+         * la consulta.
+         */
+
+        await new Promise(
+            resolve => requestAnimationFrame(resolve)
+        );
 
         const verificacion =
-            await ReclamosRepository.buscar(codigo);
+            await ReclamosRepository.buscar(
+                codigo
+            );
 
-        console.log("OK 3");
-        console.log(verificacion);
+        console.log(
+            "OK 3"
+        );
+
+        console.log(
+            verificacion
+        );
+
+
+        // ==========================================
+        // VERIFICACIÓN FALLIDA
+        // ==========================================
 
         if(!verificacion){
 
-            toast("No fue posible verificar el reclamo.");
+            console.error(
+                "No fue posible verificar el reclamo."
+            );
+
+            actualizarProgresoEnvio(
+                100,
+                "No fue posible verificar la solicitud."
+            );
+
+            setTimeout(
+                ocultarProgresoEnvio,
+                800
+            );
+
+            toast(
+                "No fue posible verificar el reclamo."
+            );
 
             return;
 
         }
 
-        if(verificacion.num !== codigo){
 
-            toast("La verificación del reclamo falló.");
+        if(
+            verificacion.num !== codigo
+        ){
+
+            console.error(
+                "La verificación del reclamo falló."
+            );
+
+            actualizarProgresoEnvio(
+                100,
+                "La verificación no pudo completarse."
+            );
+
+            setTimeout(
+                ocultarProgresoEnvio,
+                800
+            );
+
+            toast(
+                "La verificación del reclamo falló."
+            );
 
             return;
 
         }
 
-        console.log("4. Pintando código...");
 
-        $('radicado-num').textContent = codigo;
+        // ==========================================
+        // PASO 4
+        // CONFIRMACIÓN
+        // ==========================================
 
-        console.log("OK 4");
+        actualizarProgresoEnvio(
+            82,
+            "Confirmando la recepción..."
+        );
 
-        // Si ya no descargas automáticamente el PDF,
-        // deja esta línea comentada.
+        console.log(
+            "4. Pintando código..."
+        );
 
-        // await descargarTicketPDF();
+        $('radicado-num')
+            .textContent =
+            codigo;
 
-        console.log("5. Cambiando a pantalla de éxito...");
+        console.log(
+            "OK 4"
+        );
+
+
+        // ==========================================
+        // PASO 5
+        // PANTALLA FINAL
+        // ==========================================
+
+        actualizarProgresoEnvio(
+            95,
+            "Preparando la confirmación..."
+        );
+
+        console.log(
+            "5. Cambiando a pantalla de éxito..."
+        );
 
         document
             .querySelectorAll(".wstep")
@@ -1211,62 +1562,147 @@ async function enviarReclamo(){
 
             });
 
-        console.log("OK 5");
+        console.log(
+            "OK 5"
+        );
 
-        console.log("6. Pintando stepper...");
+
+        // ==========================================
+        // STEPPER
+        // ==========================================
+
+        console.log(
+            "6. Pintando stepper..."
+        );
 
         document
-            .querySelectorAll("#stepper .st")
+            .querySelectorAll(
+                "#stepper .st"
+            )
             .forEach(s=>{
 
-                s.classList.add("hecho");
+                s.classList.add(
+                    "hecho"
+                );
 
-                s.classList.remove("actual");
+                s.classList.remove(
+                    "actual"
+                );
 
             });
 
-        console.log("OK 6");
-
-        console.log("7. Ocultando navegación...");
-
-        $('nav-wizard')
-            .classList.add("hidden");
-
-        console.log("OK 7");
-
-        console.log("8. Toast éxito...");
-
-        toast(
-
-            "Reclamo " +
-
-            codigo +
-
-            " enviado con éxito"
-
+        console.log(
+            "OK 6"
         );
 
-        console.log("OK 8");
 
-        console.log("===================================");
-        console.log("FLUJO TERMINADO CORRECTAMENTE");
-        console.log("===================================");
+        // ==========================================
+        // NAVEGACIÓN
+        // ==========================================
+
+        console.log(
+            "7. Ocultando navegación..."
+        );
+
+        $('nav-wizard')
+            .classList.add(
+                "hidden"
+            );
+
+        console.log(
+            "OK 7"
+        );
+
+
+        // ==========================================
+        // COMPLETADO
+        // ==========================================
+
+        actualizarProgresoEnvio(
+            100,
+            "¡Reclamo enviado correctamente!"
+        );
+
+        console.log(
+            "8. Flujo completado."
+        );
+
+
+        /*
+         * Dejamos el 100% visible brevemente.
+         * Después desaparece para revelar
+         * la pantalla de éxito.
+         */
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    700
+                )
+        );
+
+        ocultarProgresoEnvio();
+
+
+        toast(
+            "Reclamo " +
+            codigo +
+            " enviado con éxito"
+        );
+
+
+        console.log(
+            "==================================="
+        );
+
+        console.log(
+            "FLUJO TERMINADO CORRECTAMENTE"
+        );
+
+        console.log(
+            "==================================="
+        );
+
 
     }
     catch(error){
 
-        console.log("===================================");
-        console.log("ERROR EN EL FLUJO");
-        console.log("===================================");
+        console.log(
+            "==================================="
+        );
 
-        console.error(error);
+        console.log(
+            "ERROR EN EL FLUJO"
+        );
 
-        console.error(error.stack);
+        console.log(
+            "==================================="
+        );
+
+        console.error(
+            error
+        );
+
+        console.error(
+            error?.stack
+        );
+
+
+        actualizarProgresoEnvio(
+            100,
+            "No fue posible completar el envío."
+        );
+
+
+        setTimeout(
+            ocultarProgresoEnvio,
+            900
+        );
+
 
         toast(
-
             "No fue posible enviar el reclamo."
-
         );
 
     }
@@ -1283,7 +1719,7 @@ async function subirDocumentosReclamo(reclamoId){
 
     let total = 0;
 
-    if(!wizard.archivos){
+    if(!Object.keys(documentosReclamo).length){
 
         console.log("No existen documentos.");
 
@@ -1295,12 +1731,14 @@ async function subirDocumentosReclamo(reclamoId){
         wizard._docsActivos ??
         DOCS[wizard.tipo][wizard.perfil];
 
-    for(const indice in wizard.archivos){
+    const tareas = [];
+
+    for(const indice in documentosReclamo){
 
         const archivos =
-            wizard.archivos[indice];
+            documentosReclamo[indice];
 
-        if(!archivos?.length){
+        if(!Array.isArray(archivos) || !archivos.length){
 
             continue;
 
@@ -1314,76 +1752,61 @@ async function subirDocumentosReclamo(reclamoId){
 
         for(const archivo of archivos){
 
-            console.log("--------------------------");
+            tareas.push(
 
-            console.log("Archivo:", archivo.name);
+                (async()=>{
 
-            try{
+                    console.log("--------------------------");
+                    console.log("Archivo:", archivo.name);
 
-                const subida =
-                    await StorageRepository.subirArchivo(
+                    const subida =
+                        await StorageRepository.subirArchivo(
+                            archivo,
+                            reclamoId
+                        );
 
-                        archivo,
+                    console.log("Archivo subido");
+                    console.log(subida);
 
-                        reclamoId
+                    await StorageRepository.guardarDocumento({
 
-                    );
+                        reclamo_id: reclamoId,
 
-                console.log("Archivo subido");
+                        nombre_original: archivo.name,
 
-                console.log(subida);
+                        nombre_storage: subida.nombreStorage,
 
-                await StorageRepository.guardarDocumento({
+                        tipo_documento: nombreDocumento,
 
-                    reclamo_id: reclamoId,
+                        bucket: "reclamos",
 
-                    nombre_original: archivo.name,
+                        ruta: subida.ruta,
 
-                    nombre_storage: subida.nombreStorage,
+                        size: archivo.size,
 
-                    tipo_documento: nombreDocumento,
+                        mime_type: archivo.type
 
-                    bucket: "reclamos",
+                    });
 
-                    ruta: subida.ruta,
+                    console.log("Documento registrado en BD");
 
-                    size: archivo.size,
+                    total++;
 
-                    mime_type: archivo.type
+                })()
 
-                });
-
-                console.log("Documento registrado en BD");
-
-                total++;
-
-                console.log("ANTES DE TERMINAR EL FOR");
-
-            }
-
-            catch(error){
-
-                console.error("ERROR SUBIENDO");
-
-                console.error(error);
-
-                throw error;
-
-            }
+            );
 
         }
 
-        console.log("SALÍ DEL SEGUNDO FOR");
-
     }
 
-    console.log("SALÍ DEL FOR");
+    console.log("Esperando finalización de todas las cargas...");
 
-    console.log("TOTAL DOCUMENTOS:", total);
+    await Promise.all(tareas);
 
     console.log("==============================");
-
-    console.log("VOY A HACER RETURN");
+    console.log("TOTAL DOCUMENTOS:", total);
+    console.log("==============================");
 
     return total;
 
@@ -1478,6 +1901,82 @@ function reiniciarWizard(){
     refrescarWizard();
 
 }
+
+
+// ==========================================
+// PROGRESO VISUAL DE ENVÍO
+// </gishikoDev_>
+// ==========================================
+
+function mostrarProgresoEnvio(){
+
+    const modal =
+        $('envio-progress');
+
+    if(!modal)
+        return;
+
+    modal.classList.remove('hidden');
+
+    actualizarProgresoEnvio(
+        5,
+        "Preparando su solicitud..."
+    );
+
+}
+
+function actualizarProgresoEnvio(
+    porcentaje,
+    mensaje
+){
+
+    const barra =
+        $('envio-progress-bar');
+
+    const texto =
+        $('envio-progress-message');
+
+    const porcentajeTexto =
+        $('envio-progress-percent');
+
+    if(barra){
+
+        barra.style.width =
+            `${porcentaje}%`;
+
+    }
+
+    if(texto){
+
+        texto.textContent =
+            mensaje;
+
+    }
+
+    if(porcentajeTexto){
+
+        porcentajeTexto.textContent =
+            `${porcentaje}%`;
+
+    }
+
+}
+
+function ocultarProgresoEnvio(){
+
+    const modal =
+        $('envio-progress');
+
+    if(!modal)
+        return;
+
+    modal.classList.add('hidden');
+
+}
+
+
+
+
 
 /* ================= PRE-AUTORIZACIÓN ================= */
 function cargarDocPA(i,input,maxMB,multi){
@@ -1735,8 +2234,22 @@ if(_fProd) _fProd.addEventListener('change', ()=>SC.inyectarCamposEvento());
 
 // Validación al enviar: bloquear si documentos obligatorios faltan
 SC.docsFaltantes = function(){
-  const docs = wizard._docsActivos || (wizard.tipo && wizard.perfil ? DOCS[wizard.tipo][wizard.perfil] : []);
-  return docs.some(([_,req],i)=> req && !(wizard.archivos[i]||[]).length);
+
+    const docs =
+        wizard._docsActivos ??
+
+        DOCS[wizard.tipo][wizard.perfil];
+
+    return docs.some(
+
+        ([,obligatorio],i)=>
+
+            obligatorio &&
+
+            !(documentosReclamo[i]?.length)
+
+    );
+
 };
 
 // ============ FORMULARIOS DINÁMICOS DESDE BACKEND (STUB) ============

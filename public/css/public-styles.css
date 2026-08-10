@@ -375,4 +375,135 @@ label{display:block;font-size:13px;font-weight:600;color:var(--profundo);margin-
     font-style:italic;
 }
 
+/* ==========================================
+   PROGRESO DE ENVÍO
+   </gishikoDev_
+========================================== */
+
+.envio-progress{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(10,20,30,.58);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    padding:20px;
+    opacity:1;
+    visibility:visible;
+    transition:
+        opacity .25s ease,
+        visibility .25s ease;
+}
+
+.envio-progress.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+
+.envio-progress-card{
+    width:min(430px,100%);
+    background:#fff;
+    border-radius:18px;
+    padding:32px 28px 26px;
+    text-align:center;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.20);
+    animation:
+        envioProgressIn .3s ease;
+}
+
+@keyframes envioProgressIn{
+    from{
+        opacity:0;
+        transform:translateY(12px) scale(.97);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+.envio-progress-icon{
+
+    width:58px;
+    height:58px;
+    margin:0 auto 16px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--azul);
+    color:#fff;
+    font-size:25px;
+    animation:
+        envioPulse 1.6s infinite;
+}
+
+@keyframes envioPulse{
+
+    0%,100%{
+        box-shadow:
+            0 0 0 0 rgba(0,182,240,.30);
+    }
+    50%{
+        box-shadow:
+            0 0 0 10px rgba(0,182,240,0);
+    }
+}
+
+.envio-progress-title{
+    font-size:19px;
+    font-weight:700;
+    color:var(--profundo);
+    margin-bottom:7px;
+}
+
+.envio-progress-message{
+    min-height:22px;
+    font-size:13px;
+    color:var(--pizarra);
+    margin-bottom:20px
+}
+
+.envio-progress-track{
+    width:100%;
+    height:8px;
+    overflow:hidden;
+    border-radius:99px;
+    background:var(--niebla);
+}
+
+.envio-progress-bar{
+    width:0%;
+    height:100%;
+    border-radius:99px;
+    background:
+        linear-gradient(
+            90deg,
+            var(--verde),
+            var(--azul)
+        );
+    transition:
+        width .45s ease;
+}
+
+.envio-progress-percent{
+    margin-top:9px;
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:700;
+    color:var(--pizarra);
+}
+
+.envio-progress-note{
+    margin-top:18px;
+    font-size:11px;
+    line-height:1.5;
+    color:#8a929b;
+}
+
 /* --- separator --- */

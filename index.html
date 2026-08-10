@@ -230,7 +230,7 @@
           </p>
           <div class="servicios-grid">
             <label class="servicio-card">
-              <input type="radio" name="servicio" value="H" onchange="selServicio(this.value)">
+              <input type="radio" name="servicio" value="M" onchange="selServicio(this.value)">
 
               <div class="icono">🩺</div>
               <h4>Servicio Médico</h4>
@@ -679,6 +679,56 @@
       </div>
     </div>
   </div>
+
+
+  <!-- ==========================================
+     PROGRESO DE ENVÍO
+    </gishikoDev_>
+  ========================================== -->
+
+<div id="envio-progress" class="envio-progress hidden">
+
+    <div class="envio-progress-card">
+
+        <div class="envio-progress-icon" id="envio-progress-icon">
+            <span>↗</span>
+        </div>
+
+        <div class="envio-progress-title">
+            Enviando su reclamo
+        </div>
+
+        <div
+            class="envio-progress-message"
+            id="envio-progress-message"
+        >
+            Preparando la solicitud...
+        </div>
+
+        <div class="envio-progress-track">
+
+            <div
+                id="envio-progress-bar"
+                class="envio-progress-bar"
+            ></div>
+
+        </div>
+
+        <div
+            id="envio-progress-percent"
+            class="envio-progress-percent"
+        >
+            0%
+        </div>
+
+        <div class="envio-progress-note">
+            No cierre esta ventana mientras procesamos su solicitud.
+        </div>
+
+    </div>
+
+</div>
+
 
 
   <!-- <footer class="gishiko-footer">
