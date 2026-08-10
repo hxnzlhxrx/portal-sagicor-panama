@@ -1644,7 +1644,7 @@ async function enviarReclamo(){
          * un nuevo consecutivo.
          */
 
-        const MAX_INTENTOS = 100;
+        const MAX_INTENTOS = 9999;
 
         let nuevoReclamo = null;
 
